@@ -1,0 +1,10 @@
+# OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+# Sample files
+99-sample.html.demo
+99-sample.js.demo
+
+# Node-RED core files
+core/*

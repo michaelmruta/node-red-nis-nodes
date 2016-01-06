@@ -1,0 +1,25 @@
+{
+  "name": "node-red-nis-nodes",
+  "version": "1.0.0",
+  "description": "Toolbox v.2 - lloopp core and binding components.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Node-RED",
+    "toolbox",
+    "nis",
+    "lloopp"
+  ],
+  "author": "Michael Angelo Ruta",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/michaelmruta/node-red-nis-nodes.git"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelmruta/node-red-nis-nodes/issues"
+  },
+  "homepage": "https://github.com/michaelmruta/node-red-nis-nodes#readme"
+}

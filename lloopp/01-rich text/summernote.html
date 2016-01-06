@@ -1,0 +1,118 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<style>
+    .modal-backdrop {
+        z-index: auto;
+    }
+</style>
+
+<script type="text/x-red" data-template-name="rich-text">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Topic</label>
+        <input type="text" id="node-input-name" placeholder="Topic">
+    </div>
+    <div class="form-row node-text-editor-row" style="width:480px">
+        <div class="node-text-editor" id="node-input-rich-editor" ></div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-attribute"><i class="fa fa-cog"></i> Atrribute</label>
+        msg.<input type="text" id="node-input-attribute" placeholder="body or payload" style="width:150px">
+    </div>
+    <div class="form-row" style="margin-bottom: 0px; ">
+        <label><i class="fa fa-code"></i> Supplant</span></label>
+        <input type="checkbox" id="node-input-supplant" style="display: inline-block; width: auto;vertical-align: center;">
+    </div>
+    <link rel="stylesheet" href="vendor/summernote/summernote.css" type="text/css">
+    <script src="vendor/summernote/summernote.min.js" type="text/javascript" />
+    <script src="vendor/summernote/transition.js" type="text/javascript" />
+</script>
+
+<script type="text/x-red" data-help-name="rich-text">
+    <h3>Summernote</h3>
+    <p>Super Simple WYSIWYG Editor</p>
+    <p>This node could be used to create rich texts, HTMLs and email messages. Sends topic as <code>msg.topic</code> and the contents in the editor as html in <code>msg[<n.attribute>]</code>.</p>
+    <p><strong>supplant</strong> replaces strings enclosed with double curly braces {} to equivalent property values of <strong>msg.payload</strong>. This is applied to both the <strong>topic</strong> and <strong>body</strong> <code>eg. hi {name}!</code></p>
+    <p style="color:red"><strong>Note:</strong> toolbar actions & dialogs is not compatible and currently unstable.</p>
+</script>
+
+<script type="text/javascript">
+
+    var summernote;
+
+    RED.nodes.registerType('rich-text',{
+        color:"#a6bbcf",
+        category: 'lloopp',
+        defaults: {
+            name: {value:"", required:true},
+            html: {value:"", required:true},
+            attribute: {value:"body", required:true, 
+                validate:function(v){ return (v && v.match(/^[a-zA-Z0-9]*$/)) ? true : false }},
+            supplant: {value:false, required:true}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        paletteLabel: "summernote",
+        label: function() {
+            return this.name || "summernote";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditprepare: function() {
+            var that = this;
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-text-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-text-editor, .note-editor").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+            $(function() {
+                summernote = $('#node-input-rich-editor').summernote({
+                    "height":250,
+                    "width": '100%'
+                });    
+            });
+            
+            summernote.code(this.html);
+        },
+        oneditsave: function(){
+            console.log(summernote.code())
+            this.html = summernote.code();
+        }
+    });
+</script>
