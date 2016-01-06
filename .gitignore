@@ -2,6 +2,9 @@
 [Tt]humbs.db
 *.DS_Store
 
+# Subversion
+*.svn
+
 # Sample files
 99-sample.html.demo
 99-sample.js.demo
