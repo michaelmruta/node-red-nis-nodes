@@ -1,8 +1,10 @@
 <html><body>
 <h3>node-red-nis-nodes</h3>
 
+Author: Meku Kun (michaelmruta@yahoo.com)
+
 A collection of <a target="_blank" href="http://nodered.org/">Node-RED</a> nodes for
-<a target="_blank" href="http://lloopp.org/">lloopp</a> Toolbox v2.
+<a target="_blank" href="http://naturalintelligence.solutions/">lloopp</a> Toolbox (propietary).
 
 ### Installation
 
@@ -179,7 +181,7 @@ Parallel enables easy multi-thread processing.
 
 ## Copyright and license
 
-Copyright 2014, 2015 Natural Intelligence Solutions. under [the Apache 2.0 license](LICENSE).
+Copyright 2014, 2015, 2016 Natural Intelligence Solutions. under [the Apache 2.0 license](LICENSE).
 
 Most of these nodes are experimental. Use at your own risk.
 
