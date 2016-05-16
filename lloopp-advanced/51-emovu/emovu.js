@@ -12,39 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Author: Michael Angelo Ruta (2015)
+ *
  **/
 
-String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g,
-        function (a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
-    );
-};
+var unirest = require('unirest');
 
 module.exports = function(RED) {
     "use strict";
-
-    function RichTextNode(n) {
-
+    
+    function EmoVuNode(n) {
         RED.nodes.createNode(this,n);
 
         var node = this;
-        
-        this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
 
-            if(n.supplant) {
-                msg.topic = n.name.supplant(msg.payload);
-                msg[n.attribute] = n.html.supplant(msg.payload);
-            } else {
-                msg.topic = n.name || "untitled";
-                msg[n.attribute] = n.html;
+        this.on('input', function (msg) {
+            if(msg.filename) {
+                unirest.post( n.url)
+                    .header("X-Mashape-Key", n.key)
+                    .header("LicenseKey", n.license)
+                    .attach("imageFile", fs.createReadStream(msg.filename))
+                    .end(function (result) {
+                      node.send(result.status, result.headers, result.body);
+                    });
             }
-            node.send(msg);
         });
 
     }
-    RED.nodes.registerType("rich-text",RichTextNode);
+    RED.nodes.registerType("emovu",EmoVuNode);
 }

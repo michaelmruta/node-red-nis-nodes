@@ -1,0 +1,164 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/javascript">
+  
+// Grab elements, create settings, etc.\
+var context, video, blob;
+
+function prepare() {
+
+  context = $("#canvas")[0].getContext("2d"),
+  video = $("#video")[0],
+  videoObj = { "video": true },
+  errBack = function(error) {
+    console.log("Video capture error: ", error.code); 
+  };
+
+  // Put video listeners into place
+  if(navigator.getUserMedia) { // Standard
+    navigator.getUserMedia(videoObj, function(stream) {
+      video.src = stream;
+      video.play();
+    }, errBack);
+  } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+    navigator.webkitGetUserMedia(videoObj, function(stream){
+      video.src = window.webkitURL.createObjectURL(stream);
+      video.play();
+    }, errBack);
+  }
+  else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+    navigator.mozGetUserMedia(videoObj, function(stream){
+      video.src = window.URL.createObjectURL(stream);
+      video.play();
+    }, errBack);
+  }
+}
+
+var hasArrayBufferView = new Blob([new Uint8Array(100)]).size == 100;
+
+function uriToBlob(uri){
+    var mime   = uri.split(',')[0].split(':')[1].split(';')[0];
+    var bytes  = atob(uri.split(',')[1]);
+    var len    = bytes.length;
+    var buffer = new window.ArrayBuffer(len);
+    var arr    = new window.Uint8Array(buffer);
+
+    for (var i = 0; i < len; i++) {
+        arr[i] = bytes.charCodeAt(i);
+    }
+
+    return new Blob([arr], { type: mime });
+}
+
+function take_snapshot() {
+  $("#canvas")[0].getContext("2d").drawImage($("#video")[0], 0, 0, 400,300);
+  blob = uriToBlob($("#canvas")[0].toDataURL());
+
+  $("#canvas").show();
+  $("#video").hide();
+}
+
+</script>
+  
+<script type="text/x-red" data-template-name="camera">
+
+    <style type="text/css">
+      body { font-family: Helvetica, sans-serif; }
+      h2, h3 { margin-top:0; }
+      form { margin-top: 15px; }
+      form > input { margin-right: 15px; }
+      #video, #canvas { width:400px; height:300px; display:block; margin:auto; border:1px solid; background:#ccc; }
+      #results-button { width:300px; display:block; margin-left:auto; margin-right:auto; margin-top: 5px; }
+    </style>
+
+    <div class="form-row">
+        <canvas id="canvas" width="400" height="300" style="display:none"></canvas>
+
+        <video id="video" width="400" height="300" autoplay></video>
+
+        <button type="button" id="results-button" onclick="javascript:take_snapshot(); return false;">
+          <i class="fa fa-camera"></i> Take Snapshot
+        </button>
+    </div>
+
+    <script>  
+    prepare();
+    </script>
+
+</script>
+
+<script type="text/x-red" data-help-name="camera">
+    <p>This node captures images from camera. </p>
+    <p>It takes a PNG image through the endpoint <code>red/admin/camera/:id</code>, stores it to <code>public/uploads</code> and returns its <strong>URI name</strong>. Filename used is <code>image-&ltUNIX TIME&gt.png</code></p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('camera', {
+        color: "#FFAAAA",
+        category: 'binding',
+        defaults: {
+            name: {value:""},
+            data: {value:""}
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "camera.png",
+        label: function() {
+            return this.name || "camera";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        },
+        button: {
+
+            onclick: function() {
+
+                var camera_id = this.id;
+
+                var fd = new FormData();
+                fd.append('imageFile', blob, 'image.png');
+
+                $.ajax({
+                  url: "camera/"+camera_id,
+                  type:"POST",
+                  data: fd,
+                  cache: false, 
+                  contentType: false, 
+                  processData: false,
+                  success: function(resp) {
+                      RED.notify("Successfully captured.");
+                  },
+                  error: function(jqXHR,textStatus,errorThrown) {
+                      if (jqXHR.status == 404) {
+                          RED.notify("<strong>Error</strong>: camera node not deployed","error");
+                      } else if (jqXHR.status == 500) {
+                          RED.notify("<strong>Error</strong>: camera failed, see log for details.","error");
+                      } else if (jqXHR.status == 0) {
+                          RED.notify("<strong>Error</strong>: no response from server","error");
+                      } else {
+                          RED.notify("<strong>Error</strong>: unexpected error: ("+jqXHR.status+") "+textStatus,"error");
+                      }
+                  }
+                });
+
+            }
+
+        }
+    });
+</script>

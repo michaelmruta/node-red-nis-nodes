@@ -1,0 +1,73 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+-->
+
+<script type="text/x-red" data-template-name="d3">
+
+    <div class="form-row">
+        <label for="node-input-chartType"><i class="fa fa-line-chart"></i> ChartType</label>
+        <select type="text" id="node-input-chartType">
+            <option> -- select a chart type -- </option>
+            <option value="wordcloud">wordcloud</option>
+            <option value="sunburst">sunburst</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-identifier"><i class="fa fa-key"></i> Identifier</label>
+        <input type="text" id="node-input-identifier" style="width: 150px;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-png"><i class="fa fa-picture-o"></i> Rasterize</label>
+        <input type="checkbox" id="node-input-png" placeholder="once" style="width: 10%; vertical-align: top;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+</script>
+
+<script type="text/x-red" data-help-name="d3">
+   <p><strong>D3.js</strong> is a JavaScript library for manipulating documents based on data. <strong>D3</strong> helps you bring data to life using HTML, SVG, and CSS. D3’s emphasis on web standards gives you the full capabilities of modern browsers without tying yourself to a proprietary framework, combining powerful visualization components and a data-driven approach to DOM manipulation.</p>
+</script>
+
+<script type="text/javascript">
+
+    RED.nodes.registerType('d3',{
+        category: 'lloopp',
+        color: '#F68D27',      
+        defaults: {             
+            name: {value: ""},   
+            data: {value: ""},
+            chartType: {value: null, required: true},
+            png: {value: false}
+        },
+        inputs:1,               
+        outputs:0,              
+        icon: "file.png",    
+        align:"right", 
+        label: function() {     
+            return this.name||this.category||"d3";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        },
+    });
+</script>

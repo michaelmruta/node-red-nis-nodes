@@ -1,0 +1,104 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="R script">
+    <div class="form-row">
+        <label for="node-input-executable"><i class="fa fa-file"></i> Executable</label>
+        <input type="text" id="node-input-executable" placeholder="/usr/local/bin/R or /usr/bin/R">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rscript"><i class="fa fa-file"></i> R Script</label>
+        data/<input type="text" id="node-input-rscript" placeholder="rscripts/file.R" style="width:200px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-entry"><i class="fa fa-wrench"></i> Entry Point</label>
+        <input type="text" id="node-input-entry" placeholder="function">
+    </div>
+    <div class="form-row">
+        <label for="node-input-enabled"><i class="fa fa-wrench"></i> Enabled</label>
+        <input type="checkbox" id="node-input-enabled">
+    </div>
+    <div class="form-row">
+        <label for="node-input-exec"><i class="fa fa-wrench"></i> Exec</label>
+        <input type="checkbox" id="node-input-exec">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-tips">This requires an installation of <strong>R</strong> in the current machine. To download R, please choose your preferred <a href="http://cran.r-project.org/mirrors.html">CRAN mirror</a>. See the Info tab for help writing rscripts.</p>
+</div>
+</script>
+
+<script type="text/x-red" data-help-name="R script"> 
+<p>RIO, R Input Output, connects an app to Rserve, a TCP/IP server which allows other programs to use facilities of R.</p>
+<p>It supports double, double array, integer, integer array, string, string array, boolean, boolean array objects and raw vector (images or files).</p>
+<p>It supports also the plain text authentication, if Rserve is configured for that capability.</p>
+<p>The main goal is to pass a string containing a script call using a JSON object as parameter. Then, inside the script, using RJSONIO package, deserializing the JSON object, calling a method, serializing the response and returning to NodeJS.</p>
+
+<p>In order to start server run following line in examples director:</p>
+<p><strong>R -f sample.R --gui-none --no-save</strong> - this will block while Rserve is started because we run run.Rserve() the current session will become Rserve session so we can initialize the server here</p>
+
+<p><strong>RScript</strong> is the location of the RScript file. It runs once the server has deployed.</p>
+<p><strong>Entry Point</strong> is the function where <strong>msg.payload</strong> will be sent.</p>
+
+<p>"start" or "stop" in <strong>msg.topic</strong> to spawn a R instance, otherwise payload is sent to rio (Rserve).</p>
+
+<p>Take note that the data passed to R is stringified so it has to be parsed. See sample code below.</p>
+
+<h3>Sample RScript Code</h3>
+
+<pre>
+require('Rserve')
+require('jsonlite')
+
+echo <- function(data) {
+    data <- fromJSON(data)
+    return(data);
+}
+
+run.Rserve()
+</pre>
+
+<p>See more examples on <a href="https://github.com/albertosantini/node-rio/tree/master/examples">github</a>.</p>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('R script',{
+        color: "#EEEEEE",
+        category: 'binding',      
+        defaults: {             
+            name: {value:""},   
+            enabled: {value:""},
+            exec: {value:""},
+            rscript: {value:"", required:true},
+            entry: {value:"", required:true},
+            executable: {value:"/usr/local/bin/R", required:true}
+        },
+        inputs:1,               
+        outputs:1,              
+        icon: "r.png",
+        label: function() {     
+            return this.name||"R script";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

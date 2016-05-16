@@ -1,0 +1,85 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="provision">
+    <div class="form-row">
+        <label for="node-input-code"><i class="fa fa-code"></i> Code</label>
+        <input type="text" id="node-input-code" placeholder="X-###">
+    </div>
+    <div class="form-row">
+        <label for="node-input-action"><i class="fa fa-wrench"></i> Action</label>
+        <select id="node-input-action">
+          <option value="provision">Provision</option>
+          <option value="deprovision">Deprovision</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-group"><i class="fa fa-wrench"></i> Group</label>
+        <select id="node-input-group">
+          <option value="target">Target</option>
+          <option value="control">Control</option>
+          <option value="Random">Random</option>
+        </select>
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-tips">See the Info tab for help on using provision node.</div>
+</script>
+
+<script type="text/x-red" data-help-name="provision">
+   <p>Provisioning node. Takes a <strong>msg.profile</strong> and provisions a campaign to it. If the profile is not present, 
+   it creates it using the <strong>msg.payload</strong> data.</p>
+</script>
+
+<script type="text/javascript">
+    function oneditprepare() {
+        $("#node-input-action").val(this.action);
+        $("#node-input-action").change();
+        $("#node-input-group").val(this.group);
+        $("#node-input-group").change();
+    }
+    function oneditsave() {
+        action = $("#node-input-action").val();
+        group = $("#node-input-group").val();
+    }
+
+    RED.nodes.registerType('provision',{
+        color: "#E6E0F8",
+        category: 'lloopp',      
+        defaults: {             
+            name: {value:""},   
+            code: {value:"C-###", required:true, validate:RED.validators.regex(/C-[0-9]{3}/) },
+            action: {value:"provision", required:true},
+            group: {value:"target", required:true}
+        },
+        inputs:1,               
+        outputs:1,              
+        icon: "inject.png",
+        label: function() {     
+            return this.name||this.code+"::"+this.group||"provision";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: oneditprepare,
+        oneditsave: oneditsave
+    });
+</script>

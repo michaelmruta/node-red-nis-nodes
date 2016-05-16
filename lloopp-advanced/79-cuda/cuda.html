@@ -1,0 +1,84 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License,
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="cuda">
+    
+    <div class="form-row">
+        <label for="node-input-module"><i class="fa fa-file"></i> Module</label>
+        <input type="text" id="node-input-module" placeholder="/path/to/file.cubin">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-func"><i class="fa fa-gears"></i> Function</label>
+        <input type="text" id="node-input-func" placeholder="helloWorld">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+</script>
+
+<script type="text/x-red" data-help-name="cuda">
+   <p><a href="https://en.wikipedia.org/wiki/CUDA"><b>CUDA</b></a>, which stands for Compute Unified Device Architecture, is a parallel computing platform and application programming interface (API) model created by NVIDIA. It allows software developers to use a <b>CUDA</b>-enabled graphics processing unit (GPU) for general purpose processing – an approach known as GPGPU.</p>
+
+   <p>The GPU, as a specialized <a href="/wiki/Computer_processor" title="Computer processor" class="mw-redirect">processor</a>, addresses the demands of <a href="/wiki/Real-time_computer_graphics" title="Real-time computer graphics">real-time</a> high-resolution <a href="/wiki/3D_graphics" title="3D graphics" class="mw-redirect">3D graphics</a> compute-intensive tasks. As of 2012<sup class="plainlinks noprint asof-tag update" style="display:none;"><a class="external text" href="//en.wikipedia.org/w/index.php?title=CUDA&amp;action=edit">[update]</a></sup>, GPUs have evolved into highly parallel <a href="/wiki/Multi-core" title="Multi-core" class="mw-redirect">multi-core</a> systems allowing very efficient manipulation of large blocks of data. This design is more effective than general-purpose <a href="/wiki/Central_processing_unit" title="Central processing unit">CPUs</a> for <a href="/wiki/Algorithm" title="Algorithm">algorithms</a> where processing of large blocks of data is done in parallel, such as:</p>
+
+  <ul>
+  <li><a href="/wiki/Push-relabel_maximum_flow_algorithm" title="Push-relabel maximum flow algorithm" class="mw-redirect">push-relabel maximum flow algorithm</a></li>
+  <li>fast <a href="/wiki/Sort_algorithm" title="Sort algorithm" class="mw-redirect">sort algorithms</a> of large <a href="/wiki/List_(computing)" title="List (computing)" class="mw-redirect">lists</a></li>
+  <li>two-dimensional <a href="/wiki/Fast_wavelet_transform" title="Fast wavelet transform">fast wavelet transform</a></li>
+  <li><a href="/wiki/Molecular_dynamics" title="Molecular dynamics">molecular dynamics</a> simulations</li>
+  </ul>
+
+  <p>CUDA has several advantages over traditional general-purpose computation on GPUs (GPGPU) using graphics APIs:</p>
+
+  <ul>
+  <li>Scattered reads&nbsp;–  code can read from arbitrary addresses in memory</li>
+  <li>Unified virtual memory (CUDA&nbsp;4.0 and above)</li>
+  <li>Unified memory (CUDA&nbsp;6.0 and above)</li>
+  <li><a href="/wiki/Shared_memory" title="Shared memory">Shared memory</a>&nbsp;–  CUDA exposes a fast <a href="/wiki/Scratchpad_RAM" title="Scratchpad RAM" class="mw-redirect">shared memory</a> region that can be shared amongst threads. This can be used as a user-managed cache, enabling higher bandwidth than is possible using texture lookups.<sup id="cite_ref-14" class="reference"><a href="#cite_note-14"><span>[</span>14<span>]</span></a></sup></li>
+  <li>Faster downloads and readbacks to and from the GPU</li>
+  <li>Full support for integer and bitwise operations, including integer texture lookups</li>
+  </ul>
+
+  <i>source: <a href="https://en.wikipedia.org">Wikipedia</a>, the free encyclopedia</i>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('cuda',{
+        category: 'binding',
+        color: '#ADD75F',
+        defaults: {             
+            name: {value: ""},
+            module: {value: "", required:true},
+            func: {value: "", required:true},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "nvidia.png",
+        align:"right",
+        paletteLabel:"cuda™",
+        label: function() {     
+            return this.name||this.topic||"cuda™";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

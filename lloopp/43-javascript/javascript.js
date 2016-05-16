@@ -12,39 +12,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Author: Michael Angelo Ruta (2015)
+ *
  **/
 
-String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g,
-        function (a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
-    );
-};
+var vm = require('vm'); 
+
+global._ = require('underscore');
+global.moment = require('moment');
+global.squel = require('squel');
+global.crypto = require('crypto');
+
+// global.d = require('durable');
+// global.mapreduce = require('mapred')();
 
 module.exports = function(RED) {
     "use strict";
-
-    function RichTextNode(n) {
-
+    function JavaScriptNode(n) {
         RED.nodes.createNode(this,n);
 
         var node = this;
         
+        var id = "_"+node.id.toString().replace('.','');
+        if(!global.globalFunc) global.globalFunc = {};
+        var code = 'globalFunc["'+id+'"]=function(msg){'+n.func+';return msg}';
+        var script = new vm.Script(code,{displayErrors:true});  
+        script.runInThisContext();
+        
         this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
-
-            if(n.supplant) {
-                msg.topic = n.name.supplant(msg.payload);
-                msg[n.attribute] = n.html.supplant(msg.payload);
-            } else {
-                msg.topic = n.name || "untitled";
-                msg[n.attribute] = n.html;
-            }
+            msg = globalFunc[id](msg);
             node.send(msg);
         });
 
     }
-    RED.nodes.registerType("rich-text",RichTextNode);
+    RED.nodes.registerType("javascript",JavaScriptNode);
 }

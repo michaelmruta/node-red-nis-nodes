@@ -1,0 +1,228 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="couchbase-in">
+
+    <div class="form-row">
+    <p class="text-center">
+        <img src="../../images/couchbase-logo.png" style="width:240px">
+    </p>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-cluster"><i class="icon-wrench"></i> Cluster</label>
+        <input type="text" id="node-input-cluster" placeholder="Cluster">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="icon-wrench"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">        
+    </div>
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-model"><i class="icon-wrench"></i> Model</label>
+        <input type="text" id="node-input-model" placeholder="Model">        
+    </div>
+
+    <div class="form-row text-center">
+        <button type="button" class="btn btn-default btn-xs" onclick="javascript:$('.form-advanced-options').toggleClass('hidden');">
+        <small><i class="fa fa-cog"></i> Show/Hide Advanced Options</small></button>
+    </div>
+    
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-lockTime"><i class="icon-wrench"></i> Locking</label>
+        <input type="number" id="node-input-lockTime" placeholder="time" style="width:70px" min="0.001" max="10000">
+        <input type="number" id="node-input-lockTimeout" placeholder="timeout" style="width:70px" min="0.001" max="10000"> seconds
+    </div> 
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-opTimeout"><i class="icon-wrench"></i> Op. Timeout</label>
+        <input type="number" id="node-input-opTimeout" placeholder="1000" style="width:100px" min="1" max="10000"> milliseconds 
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-debug"></label>
+        <input type="checkbox" id="node-input-debug" style="width:20px; vertical-align:top"> Debug
+    </div>
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div id="coucbase-in-note" class="form-tips">
+      <p><b>TIP: </b><small>leave lockTime blank to disable record locking using CAS. Make locktTime and Timeout equal to access data as soon as it is unlocked.</small></p>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchbase-in">
+    <p>A node used to retrieve data using <strong>msg.profile.id</strong> in an Couchbase database</p>
+    <p><strong>Upsert</strong> - inserts an object, otherwise merge new data to an existing object</p>
+    <p><strong>Insert</strong> - inserts an object, otherwise replace new data to an existing object</p>
+    <p><strong>Remove</strong> - removes an object</p>
+
+    <hr/>
+
+    <h3>Counter</h3>
+
+    <p>A special object <code>msg[&lt;n.model&gt;].counters</code> or <code>msg.profile.counters</code> is used to create atomic counters.
+        Inside it, an attribute current value becomes the -/+ delta value of the same attribute and will be applied by the <strong>couchbase-out</strong> node.
+        A special boolean flag <code>msg.delta = true</code> much be set in order for the counter to work.
+        <strong>counter</strong> node automatically adds that attribute.</p>
+    </p>
+
+    <p>If a counter delta value is set to 0, i will reset that counter.</p>
+
+    <p>Set <strong>msg.unlock</strong> to <code>true</code> to delete CAS property.</p>
+
+    <h3>N1QL query</h3>
+    <p>Takes <strong>msg.n1ql</strong> as N1QL query. Bucket name on <strong>msg.n1ql_index</strong> to create primary index using GSI.<br /><code>CREATE PRIMARY INDEX ON `&lt;bucket&gt;` USING GSI;</code></p>
+    <p class="shortdesc">N1QL (pronounced "nickel") is the Couchbase Server query language. </p> 
+    <p class="p">N1QL embraces the JSON document model and uses SQL-like syntax. In N1QL, you operate on JSON documents, and the result of your operation is another JSON document.</p> 
+    <p class="p">A basic N1QL query has these parts:</p> 
+    <ul class="ul bullets"> 
+    <li class="li"><samp class="ph codeph">SELECT</samp>—the fields of each document to return</li> 
+    <li class="li"><samp class="ph codeph">FROM</samp>—the data bucket to look in</li> 
+    <li class="li"><samp class="ph codeph">WHERE</samp>—conditions the document must satisfy</li> 
+    </ul> 
+
+    <pre>SELECT * FROM `<bucket>` WHERE name="meku" LIMIT 1</pre>
+    <pre>SELECT * FROM `<bucket>` WHERE email IS NOT MISSING LIMIT 1;</pre>
+
+    <p><strong>Important Note:</strong> The current <strong>Counter Mechanism</strong> is <strong>NOT</strong> using couchbase <code>counter(key, delta, options, callback)</code> function.</p>
+</script>
+
+<!--  -->
+<script type="text/x-red" data-template-name="couchbase-out">
+
+    <div class="form-row">
+    <p class="text-center">
+      <img src="../../images/couchbase-logo.png" style="width:240px">
+    </p>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+            <option value="upsert">upsert</option>
+            <option value="insert">insert</option>
+            <option value="remove">remove</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-cluster"><i class="fa fa-server"></i> Cluster</label>
+        <input type="text" id="node-input-cluster" placeholder="Cluster">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="fa fa-table"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">        
+    </div>
+
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-model"><i class="fa fa-database"></i> Model</label>
+        <input type="text" id="node-input-model" placeholder="payload">        
+    </div>
+
+    <div class="form-row text-center">
+        <button type="button" class="btn btn-default btn-xs" onclick="javascript:$('.form-advanced-options').toggleClass('hidden');">
+        <small><i class="fa fa-cog"></i> Show/Hide Advanced Options</small></button>
+    </div>
+    
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-lockTime"><i class="icon-wrench"></i> Locking</label>
+        <input type="number" id="node-input-lockTime" placeholder="time" style="width:70px" min="0.001" max="10000">
+        <input type="number" id="node-input-lockTimeout" placeholder="timeout" style="width:70px" min="0.001" max="10000"> seconds
+    </div> 
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-opTimeout"><i class="icon-wrench"></i> Op. Timeout</label>
+        <input type="number" id="node-input-opTimeout" placeholder="1000" style="width:100px" min="1" max="10000"> milliseconds 
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-unlock"></label>
+        <input type="checkbox" id="node-input-unlock" style="width:20px; vertical-align:top"> Unlock
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-debug"></label>
+        <input type="checkbox" id="node-input-debug" style="width:20px; vertical-align:top"> Debug
+    </div>
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchbase-out">
+    <p>A node used to insert/update or delete data using <strong>msg.[&ltmodel&gt]</strong> or <strong>msg.payload</strong> in a Couchbase database. Requires a <strong>msg.payload.id</strong> or <strong>msg.[&ltmodel&gt].id</strong>. <strong>Bucket</strong> is the storage name. <strong>Model</strong> is the attribute used in the data of the workflow.</p>
+    <p><strong>Sample counter increment:</strong> <code> msg.delta=["profile.counters.absCtr"]; msg.counters.absCtr = 1;</code></p>
+    <p><strong>Sample counter reset:</strong> <code> msg.reset=["absCtr"];</code> Reset is executed before applying any delta values.</p>
+</script>
+
+
+<script type="text/javascript">
+    
+     RED.nodes.registerType('couchbase-in',{
+        defaults: {
+            name: {value:""},
+            debug: {value:""},
+            cluster: {value: "127.0.0.1", required: true},
+            bucket: {value: "default", required: true},
+            model: {value: "profile"},
+            lockTime: {value:null},
+            lockTimeout: {value:1, required: true},
+            opTimeout: {value:10000}
+        },
+        category: 'lloopp',
+        color: '#FFCC99',
+        inputs:1,
+        outputs:1,
+        icon: "db.png",
+        label: function() {
+            return this.name||this.bucket||"couchbase";
+        }
+    });
+
+    RED.nodes.registerType('couchbase-out',{
+        category: 'lloopp',
+        color: '#FFCC99',
+        defaults: {
+            name: {value:""}, 
+            unlock: {value:false}, 
+            debug: {value:""}, 
+            operation: {value: "insert"},
+            cluster: {value: "127.0.0.1", required: true},
+            bucket: {value: "default", required: true},   
+            model: {value: "profile", required: true},
+            lockTime: {value:1, required: true},
+            lockTimeout: {value:1, required: true},
+            opTimeout: {value:10000}
+        },       
+        inputs:1,
+        outputs:1,
+        align: 'right',
+        icon: "db.png",
+        label: function() {
+            return this.name||this.bucket||"couchbase";
+        },
+    });
+</script>

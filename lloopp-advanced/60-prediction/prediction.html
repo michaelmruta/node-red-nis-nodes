@@ -1,0 +1,85 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="prediction">
+
+    <div class="form-row">
+    <p class="text-center">
+      <img src="../../images/predictionio.png" style="width:240px">
+    </p>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-globe"></i> Engine</label>
+        <input type="text" id="node-input-host" placeholder="http://localhost:8000">
+    </div>
+    <div class="form-row">
+        <label for="node-input-key"><i class="fa fa-key"></i> APK Key</label>
+        <input type="text" id="node-input-key" placeholder="APP_KEY">
+    </div>
+    <div class="form-row">
+        <label for="node-input-key"><i class="fa fa-key"></i> App ID</label>
+        <input type="text" id="node-input-appId" placeholder="1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</div>
+</script>
+
+<script type="text/x-red" data-help-name="prediction"> 
+<p class="article">PredictionIO is an open-source Machine Learning server for developers and data scientists to build and deploy predictive applications in a fraction of the time.
+<span class="bold">PredictionIO template gallery</span> offers a wide range of predictive engine templates for download, developers can customize them easily. The <span class="bold">DASE architecture</span> of engine is the "MVC for Machine Learning". It enables developers to build predictive engine components with separation-of-concerns. Data scientists can also <span class="bold">swap and evaluate algorithms</span> as they wish. The core part of PredictionIO is an <span class="bold">engine deployment platform</span> built on top of Apache Spark. Predictive engines are deployed as distributed web services. In addition, there is an <span class="bold">Event Server</span>. It is a scalable data collection and analytics layer built on top of Apache HBase.
+PredictionIO eliminates the friction between software development, data science and production deployment. It takes care of the data infrastructure routine so that your data science team can focus on what matters most.</p>
+
+source: <a href="https://prediction.io/whatispredictionio">https://prediction.io/whatispredictionio</a>
+
+<pre>
+./pio app new toolbox
+Created new app:
+Name: <strong>toolbox</strong>
+ID: <strong>1</strong>
+Access Key: <strong>WbvGwO6OZtPqNpIfF3U4bkKKH96VcJ4TPbfQe6W7GGddS9A85P2DIEigawHPZfWz</strong>
+</pre>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('prediction',{
+        color: "#EEEEEE",
+        category: 'binding',
+        defaults: {             
+            name: {value:""},
+            appId: {value:""},
+            key: {value:""},
+            host: {value:"http://localhost:7070", required:true}
+        },
+        inputs:1,               
+        outputs:2,              
+        icon: "predictionio.png",
+        label: function() {     
+            return this.name||"prediction";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

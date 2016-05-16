@@ -12,39 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+ *
  **/
-
-String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g,
-        function (a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
-    );
-};
+var d3 = require("d3");
+var fs = require("fs");
+var vm = require('vm');
+var jsdom = require("node-jsdom");
 
 module.exports = function(RED) {
     "use strict";
 
-    function RichTextNode(n) {
+    var exphbs  = require('express-handlebars');
 
+    function d3Node(n) {
         RED.nodes.createNode(this,n);
-
         var node = this;
-        
-        this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
 
-            if(n.supplant) {
-                msg.topic = n.name.supplant(msg.payload);
-                msg[n.attribute] = n.html.supplant(msg.payload);
-            } else {
-                msg.topic = n.name || "untitled";
-                msg[n.attribute] = n.html;
-            }
-            node.send(msg);
+        node.data = {}
+
+        RED.httpNode.get("/d3/:type/:id", function(req,res) {
+            var node = RED.nodes.getNode(req.params.id);
+            var data = JSON.stringify(node.data || {});
+		    res.render("d3s/"+req.params.type, {layout: false, data: data});
+        });
+    
+        this.on('input', function (msg) {
+            node.data = msg.data;
         });
 
     }
-    RED.nodes.registerType("rich-text",RichTextNode);
+
+    RED.nodes.registerType("d3",d3Node);
+
 }

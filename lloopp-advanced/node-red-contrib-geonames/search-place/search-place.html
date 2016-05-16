@@ -1,0 +1,82 @@
+<!--
+  Jo Torsmyr
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="search place">
+    <div class="form-row">
+        <label for="node-input-query"><i class="icon-tag"></i> Query</label>
+        <input type="text" id="node-input-query" placeholder="Query">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxrows"><i class="icon-tag"></i> Max rows</label>
+        <input type="text" id="node-input-maxrows" placeholder="MaxRows">
+    </div>
+    <div class="form-row">
+        <label for="node-input-style"><i class="icon-tag"></i> Style</label>
+        <select id="node-input-style">
+          <option value="SHORT">Short</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="LONG">Long</option>
+          <option value="FULL">Full</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-username"><i class="icon-tag"></i> Username</label>
+        <input type="text" id="node-input-username" placeholder="Username">
+    </div>
+    <div class="form-row">
+        <label for="node-input-debug"><i class="icon-tag"></i> Console log</label>
+        <input type="checkbox" id="node-input-debug" placeholder="Debug">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="search place">
+    <h4>Search-place</h4>
+    <p>This node performs search for geographical places, using <a target="_blank" href="http://www.geonames.org">geonames.org</a></p>
+    <p>Please note that geonames.org requires a <strong>valid username</strong> as parameter.</p>
+    <p>The node uses the service <strong>api.geonames.org/searchJSON</strong></p>
+    <h4>Input parameters</h4>
+    <p>Parameters can either be provided using Node-RED msg URI query parameters, or secondly JSON payload</p>
+    <ul>
+      <li>Query parameters</li>
+        <p>URI: ?username=demo&style=MEDIUM&query=The Grand at Trafalgar Square&maxrows=10</p>
+        <p>Resulting in: msg.username=demo, msg.style=MEDIUM, msg.query=The Grand at Trafalgar Square, msg.maxrows=10</p>
+      <li>JSON payload</li>
+        <p>Payload: { "username" : "demo", "style" : "MEDIUM", "query" : "The Grand at Trafalgar Square", "maxrows" : "1" }</p>
+        <p>Resulting in: msg.payload.username=demo, msg.payload.style=MEDIUM, msg.payload.query=The Grand at Trafalgar Square, msg.payload.maxrows=10</p>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('search place', {
+        category : 'geonames',
+        color : 'LightCyan',
+        defaults: {
+            query : {value : ''},
+            maxrows : {value : 10, validate : RED.validators.number()},
+            style : {value : 'MEDIUM'},
+            username : {value : 'demo'},
+            debug : {value : false },
+            name : {value : ''}
+        },
+        inputs : 1,
+        outputs : 1,
+        icon : 'white-globe.png',
+        label : function() {
+            return this.name|| 'search place';
+        },
+    });
+</script>

@@ -1,0 +1,163 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+-->
+
+<script type="text/x-red" data-template-name="statistics">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-amount"><i class="fa fa-tag"></i> Amount</label>
+        <input type="text" id="node-input-amount" placeholder="Amount">
+    </div>
+    <div class="form-row">    
+      <table>
+        <tr>
+          <td>
+            <span>
+              <input id="node-input-min" name="node-input-min" type="checkbox" value="min"/>
+              <label for="node-input-min">Min</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-max" name="node-input-max" type="checkbox" value="max"/>
+              <label for="node-input-max">Max</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-sum" name="node-input-sum" type="checkbox" value="sum"/>
+              <label for="node-input-sum">Sum</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-count" name="node-input-count" type="checkbox" value="count"/>
+              <label for="node-input-count">Count</label>
+            </span> 
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>
+              <input id="node-input-average" name="node-input-average" type="checkbox" value="average"/>
+              <label for="node-input-average">Average</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-mean" name="node-input-mean" type="checkbox" value="mean"/>
+              <label for="node-input-mean">Mean</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-median" name="node-input-median" type="checkbox" value="median"/>
+              <label for="node-input-median">Median</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-mode" name="node-input-mode" type="checkbox" value="mode"/>
+              <label for="node-input-mode">Mode</label>
+            </span> 
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>
+              <input id="node-input-geometric_mean" name="node-input-geometric_mean" type="checkbox" value="geometric_mean"/>
+              <label for="node-input-geometric_mean">Geometric Mean</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-harmonic_mean" name="node-input-harmonic_mean" type="checkbox" value="harmonic_mean"/>
+              <label for="node-input-harmonic_mean">Harmonic Mean</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-variance" name="node-input-variance" type="checkbox" value="variance"/>
+              <label for="node-input-variance">Variance</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-sample-variance" name="node-input-sample-variance" type="checkbox" value="sample-variance"/>
+              <label for="node-input-sample-variance">Sample Variance</label>
+            </span> 
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>
+              <input id="node-input-standard_deviation" name="node-input-standard_deviation" type="checkbox" value="standard_deviation"/>
+              <label for="node-input-standard_deviation">Standard Deviation</label>
+            </span> 
+          </td>
+          <td>
+            <span>
+              <input id="node-input-median_deviation" name="node-input-median_deviation" type="checkbox" value="median_deviation"/>
+              <label for="node-input-median_deviation">Median Deviation</label>
+            </span> 
+          </td>
+        </tr>
+      </table>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="statistics">
+   
+   <p>A node used to implement a descriptive, regression, and inference statistics.</p>
+   
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('statistics',{
+        category: 'binding',
+        color: '#3FADB5',
+        defaults: {             
+            name: {value:""},
+            min: {value:false},
+            max: {value:false},
+            sum: {value:false},
+            count: {value:false},
+            average: {value:false},
+            mean: {value:false},
+            median: {value:false},
+            mode: {value:false},
+            geometric_mean: {value:false},
+            harmonic_mean: {value:false},
+            variance: {value:false},
+            sample_variance: {value:false},
+            standard_deviation: {value:false},
+            median_deviation: {value:false},
+        },
+        inputs:1,               
+        outputs:1,
+        icon: "function.png",     
+        label: function() {     
+            return this.name||"statistics";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

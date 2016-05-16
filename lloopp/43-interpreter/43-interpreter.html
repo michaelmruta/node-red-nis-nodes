@@ -1,0 +1,172 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="interpreter">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input class="form-control" type="text" value="" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-language"><i class="fa fa-code"></i> Language</label>
+        <select id="node-input-language">
+          <!-- <option value="sh">Bash</option>
+          <option value="c_cpp">C/C++ - PicoC</option>
+          <option value="java">Java - JVM</option>
+          <option value="lua">Lua</option>
+          <option value="matlab">MATLAB</option>
+          <option value="php">PHP</option> -->
+          <option value="python">Python</option>
+          <!-- <option value="r">R</option>
+          <option value="ruby">Ruby</option> -->
+        </select>
+    </div>
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-code"><i class="fa fa-edit"></i> Code</label>
+        <input type="hidden" id="node-input-code" autofocus="autofocus">
+        <input type="hidden" id="node-input-noerr">
+    </div>
+    <div class="form-row node-code-editor-row">
+        <div style="height: 250px;" class="node-code-editor" id="node-input-code-editor" ></div>
+    </div>
+    <div class="form-row" style="margin-bottom: 0px; ">
+        <label for="node-input-split">&nbsp;</label>
+        <input type="checkbox" id="node-input-split" style="display: inline-block; width: auto;vertical-align: center;">
+        split output payload using breaklines
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="interpreter">
+<h3>Interpreter</h3>
+
+<h4>What is an interpreter?</h3>
+<p>An <strong>interpreter</strong> is a computer program that directly executes, i.e. performs, instructions written in a programming or scripting language, without previously compiling them into a machine language program.</p>
+
+<p>This node currenly only supports <a href='https://en.wikipedia.org/wiki/Exec_(computing)'>exec</a>.</p>
+<p>In computing, <strong>exec</strong> is a functionality of an operating system that runs an executable file in the context of an already existing process, replacing the previous executable. This act is also referred to as an overlay.</p>
+
+<p>This node is using the <a href="https://en.wikipedia.org/wiki/Standard_streams">standard streams</a>.</p>
+
+<p>Takes <strong>msg.payload</strong> as string from <code>sdtin</code>.</p>
+<p>First output sends the payload of <code>sdtout</code> and the second output is for the <code>stderr</code>.</p>
+
+<i>source: <a href="https://en.wikipedia.org">Wikipedia</a>, the free encyclopedia</i>
+
+<h4>Sample Usage in Python:</h4> 
+
+<p>INPUT msg.payload: ["meku","princess"]</p>
+
+<pre><code class="language-python" data-lang="python">#!/usr/bin/python
+import sys, json
+
+payload = json.loads(sys.stdin.readline())
+
+if isinstance(payload, list):
+    for i, name in enumerate(payload):
+        print "hi "+"{name}".format(iteration=i, name=name)
+</code></pre>
+</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('interpreter',{
+        category: 'lloopp',
+        color:"#9AFF27",
+        defaults: {
+            language: {value:"sh", required:true},
+            code: {value:""},
+            name: {value:""},
+            split: {value:true}
+        },
+        inputs:1,
+        outputs:2,
+        icon: "template.png",
+        label: function() {
+            return this.name||this.language+" interpreter";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            var that = this;
+            $( "#node-input-outputs" ).spinner({
+                min:3
+            });
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-code-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-code-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-code-editor").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option');
+                if (size["sizeCache-interpreter"]) {
+                    $("#dialog").dialog('option','width',size["sizeCache-interpreter"].width);
+                    $("#dialog").dialog('option','height',size["sizeCache-interpreter"].height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-code-editor',
+                mode: 'ace/mode/javascript',
+                value: $("#node-input-code").val()
+            });
+            this.editor.setTheme("ace/theme/solarized_dark");
+            this.editor.getSession().setMode("ace/mode/"+this.language);
+
+            RED.library.create({
+                url:this.language,
+                type:"function",
+                editor:this.editor,
+                mode:"ace/mode/"+this.language,
+                fields:['name','outputs']
+            });
+            this.editor.focus();
+
+            $("#node-input-language").change(function(event) {
+                that.editor.getSession().setMode("ace/mode/"+$(this).val());
+            });
+        },
+        oneditsave: function() {
+            var annot = this.editor.getSession().getAnnotations();
+            this.noerr = 0;
+            $("#node-input-noerr").val(0);
+            for (var k=0; k < annot.length; k++) {
+                if (annot[k].type === "error") {
+                    $("#node-input-noerr").val(annot.length);
+                    this.noerr = annot.length;
+                }
+            }
+
+
+            $("#node-input-code").val(this.editor.getValue());
+            delete this.editor;
+        }
+    });
+</script>

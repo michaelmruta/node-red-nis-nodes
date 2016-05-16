@@ -1,0 +1,78 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="splunk-kvs">
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-globe"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="localhost">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-wrench"></i> Port</label>
+        <input type="text" id="node-input-port" placeholder="8089">
+    </div>
+    <div class="form-row">
+        <label for="node-input-user"><i class="fa fa-user"></i> Username</label>
+        <input type="text" id="node-input-user" placeholder="admin">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pass"><i class="fa fa-key"></i> Password</label>
+        <input type="password" id="node-input-pass" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-store"><i class="fa fa-link"></i> KVStore</label>
+        <input type="text" id="node-input-store" placeholder="<kvstore>">
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-tips">
+    <p><b>Note: </b>To learn more on how to use the Splunk KVStore, visit the official on 
+        <a href='http://docs.splunk.com/Documentation/Splunk/latest/Knowledge/ConfigureKVstorelookups'>documentation</a></p>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="splunk-kvs">
+    <p>This node inserts/updates data to a Splunk KV Store.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('splunk-kvs', {
+        color: "#B9D0A7",
+        category: 'binding',
+        align: 'right',
+        defaults: {
+            name: {value:""},
+            user: {value:"admin", required:true},
+            pass: {value:"", required:true},
+            host: {value:"localhost", required:true},
+            port: {value:"8089", required:true},
+            store: {value:"", required:true}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "white-globe.png",
+        label: function() {
+            return this.name || "splunk-kvs";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>

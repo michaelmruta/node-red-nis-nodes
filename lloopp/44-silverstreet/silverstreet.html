@@ -1,0 +1,109 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="silverstreet in">
+    
+    <div class="form-row">
+    <p class="text-center">
+      <img src="../../images/silverstreet-logo.png" style="width:150px">
+    </p>
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-username"><i class="fa fa-user"></i> Username</label>
+        <input type="text" id="node-input-username" placeholder="Username">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-password"><i class="fa fa-lock"></i> Password</label>
+        <input type="password" id="node-input-password" placeholder="Password">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-destination"><i class="fa fa-envelope"></i> Destination</label>
+        <input type="text" id="node-input-destination" placeholder="Destination">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-body"><i class="fa fa-file"></i> Body</label>
+        <input type="text" id="node-input-body" placeholder="Body">
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-sender"><i class="fa fa-cog"></i> Sender</label>
+        <input type="text" id="node-input-sender" placeholder="Sender">
+    </div>
+
+    <div class="form-row" style="margin-bottom: 0px; ">
+        <label for="node-input-dlr">&nbsp;</label>
+        <input type="checkbox" id="node-input-dlr" style="display: inline-block; width: auto;vertical-align: center;">
+        delivery report (requires an endpoint)
+    </div>
+
+    <div class="form-row" style="margin-bottom: 0px; ">
+        <label for="node-input-https">&nbsp;</label>
+        <input type="checkbox" id="node-input-https" style="display: inline-block; width: auto;vertical-align: center;">
+        use HTTPS
+    </div>
+
+    <br />
+    
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<!-- Next, some simple help text is provided for the node. -->
+<script type="text/x-red" data-help-name="silverstreet in">
+   <p>Silverstreet Node</p>
+   <p>Takes a msisdn using <strong>msg.to</strong> and a body message using <strong>msg.body</strong> or <strong>msg.payload</strong></p>
+   <p>Otherwise uses saved parameters <strong>n.destination</strong> and <strong>n.body</strong></p>
+   <p>Optional parameters with Silverstreet HTTP API using <strong>msg.options</strong></strong></p>
+   <p>bodytype, validity, service, pid, dcs, reference</p>
+</script>
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('silverstreet in',{
+        category: 'lloopp',
+        color: '#c7e9c0',
+        defaults: {             
+            name: {value:""},
+            body: {value:""},
+            destination: {value:""},
+            sender: {value:"", required:true},
+            dlr: {value:false},
+            https: {value:true}
+        },
+        credentials: {
+            username: {type:"text",required: true},
+            password: {type:"password",required: true}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "white-globe.png",
+        align: "right",
+        label: function() {     
+            return this.name||"silverstreet";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

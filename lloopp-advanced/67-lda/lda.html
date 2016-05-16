@@ -1,0 +1,77 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="lda">
+
+    <div class="form-row">
+        <label for="node-input-lang"><i class="fa fa-globe"></i> Stop Words</label>
+        <select type="text" id="node-input-lang">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="fi">Filipino</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topics"><i class="fa fa-cog"></i> Topics</label>
+        <input type="text" id="node-input-topics" placeholder="5">
+    </div>
+    <div class="form-row">
+        <label for="node-input-terms"><i class="fa fa-cog"></i> Terms</label>
+        <input type="text" id="node-input-terms" placeholder="20">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lda">
+ <p> Latent Dirichlet allocation (LDA) topic modeling in javascript for node.js. LDA is a machine learning algorithm that extracts topics and their related keywords from a collection of documents.
+
+In LDA, a document may contain several different topics, each with their own related terms. The algorithm uses a probabilistic model for detecting the number of topics specified and extracting their related keywords. For example, a document may contain topics that could be classified as beach-related and weather-related. The beach topic may contain related words, such as sand, ocean, and water. Similarly, the weather topic may contain related words, such as sun, temperature, and clouds.
+
+See <a href="http://en.wikipedia.org/wiki/Latent_Dirichlet_allocation">http://en.wikipedia.org/wiki/Latent_Dirichlet_allocation</a>
+</p>
+
+<p>Takes an array of sentences in <strong>msg.payload</strong> and run LDA to get terms for <code>n.topics</code> (<code>n.terms</code> each).</p>
+   
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('lda',{
+        category: 'binding',
+        color: '#FFAAAA',
+        defaults: { 
+            name: {value:""},
+            topics: {value:5, required:true},
+            terms: {value:20, required:true},
+            lang: {value:"en", required:true}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "arrow.png",
+        paletteLabel: "lda",
+        label: function() { 
+            return this.name||"lda";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

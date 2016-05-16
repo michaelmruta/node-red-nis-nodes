@@ -1,0 +1,152 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+  
+<script type="text/x-red" data-template-name="configuration">
+    <div class="form-row node-text-editor-row">
+        <div class="node-text-editor" id="node-input-configuration-editor" style="width: 100%; height: 420px;"></div>
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <link href="./../../css/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="./../../js/jsoneditor.min.js" />
+</script>
+  
+<script type="text/x-red" data-help-name="configuration">
+
+<h3>Configuration</h3>
+<p>Takes <strong>msg.code</strong> or <strong>msg.topic</strong> as identifier in the configuration set</p>
+<p>Returns configuration data <strong>msg.config</strong> with function <strong>msg.autoConfig</strong></p>
+<p>Configurations on node is saved flows/configurations/:id</p>
+
+<button class="button" onclick="$('#config-api').toggleClass('hidden');">Show Configuration API</button>
+<div id="config-api" class="hidden">
+<pre>// to get config data (array)
+GET /configuration/:id
+
+// to post config data (array)
+POST /configuration/:id []
+
+// to append/update config data (index+object)
+PUT /configuration/:id&index=0 {}
+
+// to delete config data (index)
+DELETE /configuration/:id&index=0
+</pre>
+</div>
+
+<br/>
+<br/>
+
+<button class="button" onclick="$('#config-implementation').toggleClass('hidden');">Show Code Implementation</button>
+<div id="config-implementation" class="hidden">
+<pre>this.on("input", function(msg) {            
+  if(msg.autoConfig) {
+      n = msg.autoConfig(n,node.id);
+  }
+  node.send(msg);
+});</pre>
+</div>
+
+<br/>
+<br/>
+
+<button class="button" onclick="$('#config-affected-nodes').toggleClass('hidden');">List of affected nodes</button>
+<div id="config-affected-nodes" class="hidden">
+  <ul>
+    <li>campaign</li>
+    <li>provision</li>
+    <li>rules</li>
+    <li>counter</li>
+    <li>csv-parse</li>
+    <li>date-filter</li>
+    <li>summernote</li>
+  </ul>
+</div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('configuration', {
+        color: "#E6E0F8",
+        category: 'lloopp',
+        defaults: {
+            name: {value:""}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "debug.png",
+        label: function() {
+            return this.name || "configuration";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditsave: function() {
+            var that = this;
+            var uri = "configuration/"+(that.name || that.id)
+            var data = JSON.stringify(that.editor.get())
+            $.post(uri,{data:data},function(res) {
+              console.log(res);
+            });
+            delete this.editor;
+        },
+        oneditprepare: function() {
+          var that = this;
+
+          function functionDialogResize() {
+              var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+              var height = $("#dialog-form").height();
+              for (var i=0;i<rows.size();i++) {
+                  height -= $(rows[i]).outerHeight(true);
+              }
+              var editorRow = $("#dialog-form>div.node-text-editor-row");
+              height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+              $(".node-text-editor").css("height",height+"px");
+              that.editor.resize();
+          }
+          $( "#dialog" ).on("dialogresize", functionDialogResize);
+          $( "#dialog" ).one("dialogopen", function(ev) {
+              var size = $( "#dialog" ).dialog('option','sizeCache-function');
+              if (size) {
+                  $("#dialog").dialog('option','width',size.width);
+                  $("#dialog").dialog('option','height',size.height);
+                  functionDialogResize();
+              }
+          });
+          $( "#dialog" ).one("dialogclose", function(ev,ui) {
+              var height = $( "#dialog" ).dialog('option','height');
+              $( "#dialog" ).off("dialogresize",functionDialogResize);
+          });
+
+          $.get("configuration/" + that.id,{"configuration":this.configuration}, function(data){
+            that.editor = new JSONEditor($("#node-input-configuration-editor")[0], {
+                mode: 'tree',
+                modes: ['code', 'form', 'text', 'tree', 'view'],
+                error: function (err) {
+                  alert(err.toString());
+                }
+            }, data );
+            that.editor.focus();
+          });
+
+        }
+    });
+</script>

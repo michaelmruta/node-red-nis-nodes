@@ -1,0 +1,75 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+-->
+
+<script type="text/x-red" data-template-name="log4js">
+    
+    <div class="form-row">
+        <label for="node-input-category"><i class="fa fa-wrench"></i> Category</label>
+        <input type="text" id="node-input-category" placeholder="Category">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-level"><i class="fa fa-wrench"></i> Level</label>
+        <select type="text" id="node-input-level">
+            <option value="info">Info</option>
+            <option value="error">Error</option>
+            <option value="warn">Warn</option>
+            <option value="fatal">Fatal</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-json" placeholder="" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-json" style="width: 70%;">JSON</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    
+</script>
+
+<script type="text/x-red" data-help-name="log4js">
+   <p>Log4js node takes a log message using <strong>msg.payload</strong> or complete <strong>msg</strong> object and log level in <strong>msg.logger</strong>. Creates a JSON event logger which contain the whole message if <strong>json</strong> is checked.</p>
+   <p><b>Note: </b>This node does not work inside a subflow.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('log4js',{
+        category: 'lloopp',
+        color: '#B9D0A7',      
+        defaults: {             
+            name: {value: ""},   
+            json: {value: false},
+            level: {value: "info", required: true},
+            category: {value: "lloopp", required: true},
+        },
+        inputs:1,               
+        outputs:0,              
+        icon: "file.png",    
+        align:"right", 
+        label: function() {     
+            return this.name||this.category||"log4js";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

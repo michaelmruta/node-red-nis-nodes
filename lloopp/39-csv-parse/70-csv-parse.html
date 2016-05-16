@@ -1,0 +1,197 @@
+c<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+  
+<script type="text/x-red" data-template-name="csv-parse">
+    <div class="form-row">
+        <label for="node-input-temp"><i class="fa fa-list"></i> <span data-i18n="csv.label.columns"></span></label>
+        <textarea type="text" id="node-input-temp" data-i18n="[placeholder]csv.placeholder.columns" style="width:60%;height:200px"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-select-sep"><i class="fa fa-text-width"></i> <span data-i18n="csv.label.separator"></span></label>
+            <select style="width: 150px" id="node-input-select-sep">
+                <option value=",">comma</option>
+                <option value="\t">tab</option>
+                <option value=" ">space</option>
+                <option value=";">semicolon</option>
+                <option value=":">colon</option>
+                <option value="#">hashtag</option>
+                <option value="|">pipe</option>
+                <option value="\x05">enquiry</option>
+                <option value="">other</option>
+           </select>
+           <input style="width: 40px;" type="text" id="node-input-sep" pattern=".">
+    </div>
+    <div class="form-row">
+        <label for="node-input-quo"><i class="fa fa-text-width"></i> Quote</label>
+         <select style="width: 150px" id="node-input-select-quo">
+             <option value='"'>double quote</option>
+             <option value="'">single quote</option>
+             <option value="\x00">null</option>
+             <option value="">other</option>
+        </select>
+       <input style="width: 40px;" type="text" id="node-input-quo" pattern=".">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        
+        <input type="checkbox" id="node-input-fixed" style="display: inline-block; width: auto; vertical-align: top;">
+           <label for="node-input-fixed" style="width: 70%;">Fixed Columns</label>
+        <label>&nbsp;</label>
+        
+        <input type="checkbox" id="node-input-legacy" style="display: inline-block; width: auto; vertical-align: top;">
+           <label for="node-input-legacy" style="width: 70%;">Use Node-Red#quot;s original parser</label>
+        <label>&nbsp;</label>
+        
+        <input type="checkbox" id="node-input-detect" style="display: inline-block; width: auto; vertical-align: top;">
+           <label for="node-input-detect" style="width: 70%;">detect data types</label>
+    </div>
+    <div class="form-tips">
+        <p><b>Note:</b> the columns should always be specified comma separated - even if another separator is chosen for the data.</p>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="csv-parse">
+    <p>A function that parses the <b>msg.payload</b> to convert csv to/from a javascript object.
+    Places the result in the payload.</p>
+    <p>If the input is a string it tries to parse it as CSV and creates a javascript object.</p>
+    <p>If the input is a javascript object it tries to build a CSV string.</p>
+    <p>The columns template should contain an ordered list of column headers. For csv input these become the property names.
+    For csv output these specify the properties to extract from the object and the order for the csv.</p>
+
+    <hr />
+
+    <h2 id="parser-options">Parser options</h2>
+    <ul>
+        <li><code>delimiter</code> (char)
+            <br>Set the field delimiter. One character only, defaults to comma. </li>
+        <li><code>rowDelimiter</code> (chars|constant)
+            <br>String used to delimit record rows or a special value; special constants are 'auto', 'unix', 'mac', 'windows', 'unicode'; defaults to 'auto' (discovered in source or 'unix' if no source is specified). </li>
+        <li><code>quote</code> (char)
+            <br>Optionnal character surrounding a field, one character only, defaults to double quotes. </li>
+        <li><code>escape</code> (char)
+            <br>Set the escape character, one character only, defaults to double quotes. </li>
+        <li><code>columns</code> (array|boolean|function) List of fields as an array, a user defined callback accepting the first line and returning the column names or true if autodiscovered in the first CSV line, default to null, affect the result data set in the sense that records will be objects instead of arrays. </li>
+        <li><code>comment</code> (char)
+            <br>Treat all the characters after this one as a comment, default to '' (disabled). </li>
+        <li><code>objname</code> (string)
+            <br>Name of header-record title to name objects by. </li>
+        <li><code>relax</code> (boolean)
+            <br>Preserve quotes inside unquoted field. </li>
+        <li><code>relax_column_count</code> (boolean)
+            <br>Discard inconsistent columns count, default to false. </li>
+        <li><code>skip_empty_lines</code> (boolean)
+            <br>Dont generate empty values for empty lines. </li>
+        <li><code>max_limit_on_data_read</code> (int)
+            <br>Maximum numer of characters to be contained in the field and line buffers before an exception is raised, used to guard against a wrong delimiter or rowDelimiter, default to 128000 characters. </li>
+        <li><code>trim</code> (boolean)
+            <br>If true, ignore whitespace immediately around the delimiter, defaults to false. Does not remove whitespace in a quoted field. </li>
+        <li><code>ltrim</code> (boolean)
+            <br>If true, ignore whitespace immediately following the delimiter (i.e. left-trim all fields), defaults to false. Does not remove whitespace in a quoted field.</li>
+        <li><code>rtrim</code> (boolean)
+            <br>If true, ignore whitespace immediately preceding the delimiter (i.e. right-trim all fields), defaults to false. Does not remove whitespace in a quoted field.</li>
+        <li><code>auto_parse</code> (boolean)
+            <br>If true, the parser will attempt to convert read data types to native types. </li>
+        <li><code>auto_parse_date</code> (boolean)
+            <br>If true, the parser will attempt to convert read data types to dates. It requires the "auto_parse" option. </li>
+    </ul>
+    <p>All options are optional.</p>
+    <h2 id="internal-properites">Internal properites</h2>
+    <p>Those properties are for internal usage but may be considered usefull to the final user in some situations. They are accessible from the intance returned by the <code>parse</code> function.</p>
+    <ul>
+        <li><code>count</code> (number)
+            <br>Internal counter of records being processed. </li>
+        <li><code>lines</code> (number)
+            <br>The number of lines encountered in the source dataset. </li>
+        <li><code>is_int</code> (regexp, function)
+            <br>The regular expression or function used to determine if a value should be cast to an integer. </li>
+        <li><code>is_float</code> (regexp, function)
+            <br>The regular expression or function used to determine if a value should be cast to a float. </li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('csv-parse',{
+        category: 'lloopp',
+        color:"#D8BFD8",
+        defaults: {
+            name: {value:""},
+            sep: {value:',',required:true},
+            quo: {value:'\x00',required:true},
+            hdrin: {value:""},
+            hdrout: {value:""},
+            multi: {value:"one",required:true},
+            ret: {value:'\\n'},
+            fixed: {value:true},
+            temp: {value:""},
+            legacy: {value:false},
+            detect: {value:true}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "arrow-in.png",
+        paletteLabel: "csv parse",
+        label: function() {
+            return this.name||"csv parse";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            if (this.sep == "," || this.sep == "\\t" || this.sep == ";" || this.sep == ":" || this.sep == " " || this.sep == "#") {
+                $("#node-input-select-sep").val(this.sep);
+                $("#node-input-sep").hide();
+            } else {
+                $("#node-input-select-sep").val("");
+                $("#node-input-sep").val(this.sep);
+                $("#node-input-sep").show();
+            }
+            $("#node-input-select-sep").change(function() {
+                var v = $("#node-input-select-sep option:selected").val();
+                $("#node-input-sep").val(v);
+                if (v == "") {
+                    $("#node-input-sep").val("");
+                    $("#node-input-sep").show().focus();
+                } else {
+                    $("#node-input-sep").hide();
+                }
+            });
+            if (this.quo == "," || this.quo == "\\t" || this.quo == ";" || this.quo == ":" || this.quo == " " || this.quo == "#") {
+                $("#node-input-select-quo").val(this.quo);
+                $("#node-input-quo").hide();
+            } else {
+                $("#node-input-select-quo").val("");
+                $("#node-input-quo").val(this.quo);
+                $("#node-input-quo").show();
+            }
+            $("#node-input-select-quo").change(function() {
+                var v = $("#node-input-select-quo option:selected").val();
+                $("#node-input-quo").val(v);
+                if (v == "") {
+                    $("#node-input-quo").val("");
+                    $("#node-input-quo").show().focus();
+                } else {
+                    $("#node-input-quo").hide();
+                }
+            });
+        }
+    });
+</script>

@@ -1,0 +1,125 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="inspect">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input class="form-control" type="text" value="" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row" style="margin-bottom: 0px;">
+        <input type="hidden" id="node-input-message" autofocus="autofocus">
+        <input type="hidden" id="node-input-noerr">
+    </div>
+    <div class="form-row node-text-editor-row">
+        <div class="node-text-editor" id="node-input-message-editor" style="width: 100%; height: 400px;"></div>
+    </div>
+    <link href="./../../css/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="./../../js/jsoneditor.min.js" />
+
+    <div id="rules-note" class="form-tips">
+</script>
+
+<script type="text/x-red" data-help-name="inspect">
+    <p>A node used to inspect a message.</p>
+    <p><b>Note: </b>This node does not work inside a subflow.</p>
+</script>
+
+<script type="text/javascript">   
+    RED.nodes.registerType('inspect',{
+        category: 'lloopp',
+        color: '#CCCCCC',
+        defaults: {
+            name: {value:""},
+            message: {value:""}
+        },       
+        inputs:1,
+        outputs:1,
+        icon: "watch.png",
+        label: function() {
+            return this.name||"inspect";
+        },
+        oneditprepare: function() {
+            var that = this;
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-text-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-text-editor").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+            $.get("inspect/"+this.id, function(data) {
+              $("#node-input-message").val(JSON.stringify(data));
+              that.editor = new JSONEditor($("#node-input-message-editor")[0], {
+                  mode: 'tree',
+                  modes: ['code', 'form', 'text', 'tree', 'view'],
+                  error: function (err) {
+                    alert(err.toString());
+                  }
+              }, data );
+              that.editor.focus();
+            });
+        },
+        oneditsave: function() {
+            var that = this;
+            $("#node-input-message").val(JSON.stringify(that.editor.get()));
+            delete this.editor;
+        },
+        button: {
+            onclick: function() {
+                var id = this.id;
+                $.ajax({
+                  url: "inspect/"+id,
+                  type:"POST",
+                  success: function(resp) {
+
+                  },
+                  error: function(jqXHR,textStatus,errorThrown) {
+                      if (jqXHR.status == 404) {
+                          RED.notify("<strong>Error</strong>: inspect node not deployed","error");
+                      } else if (jqXHR.status == 500) {
+                          RED.notify("<strong>Error</strong>: inspect failed, see log for details.","error");
+                      } else if (jqXHR.status == 0) {
+                          RED.notify("<strong>Error</strong>: no response from server","error");
+                      } else {
+                          RED.notify("<strong>Error</strong>: unexpected error: ("+jqXHR.status+") "+textStatus,"error");
+                      }
+                  }
+                });
+            }
+        }
+    });
+</script>

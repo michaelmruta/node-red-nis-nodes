@@ -1,0 +1,197 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+-->
+
+<script type="text/x-red" data-template-name="chart">
+
+    <div class="form-row">
+        <label for="node-input-chartType"><i class="fa fa-line-chart"></i> ChartType</label>
+        <select type="text" id="node-input-chartType">
+            <option> -- select a chart type -- </option>
+            <option value="simple">Line chart with ordinary data</option>
+            <option value="chart_spline">Spline chart with ordinary data</option>
+            <option value="chart_step">Step chart with ordinary data</option>
+            <option value="chart_area">Area chart with ordinary data</option>
+            <option value="chart_area_spline">Area-spline chart with ordinary data</option>
+            <option value="chart_area_step">Area-step chart with ordinary data</option>
+            <option value="chart_area_stacked">Stacked Area chart with ordinary data</option>
+            <option value="chart_area_spline_stacked">Stacked Area-spline chart with ordinary data</option>
+            <option value="chart_area_step_stacked">Stacked Area-step chart with ordinary data</option>
+            <option value="chart_bar">Bar chart with ordinary data</option>
+            <option value="chart_bar_stacked">Stacked Bar chart with ordinary data</option>
+            <option value="chart_pie">Pie chart with ordinary data</option>
+            <option value="chart_pie_sort">Pie chart with/without sort</option>
+            <option value="chart_donut">Donut chart with ordinary data</option>
+            <option value="chart_gauge">Gauge chart with ordinary data</option>
+            <option value="chart_scatter">Scatter chart with ordinary data</option>
+            <option value="chart_combination">Combination chart with ordinary data</option>
+            <option value="timeseries">Line chart with timeseries data</option>
+            <option value="timeseries_descendent">Line chart with descendent timeseries data</option>
+            <option value="timeseries_raw">Line chart with timeseries data as Number</option>
+            <option value="timeseries_date">Line chart with timeseries data as Date object</option>
+            <option value="categorized">Chart with category axis</option>
+            <option value="custom_x_categorized">Chart with category data on category axis</option>
+            <option value="axes_y2">Add y2 axis</option>
+            <option value="axes_range">Set range of axis</option>
+            <option value="axes_padding">Set padding of axis</option>
+            <option value="axes_x_tick_values">Set values for x axis</option>
+            <option value="axes_x_tick_culling">Set culling for x axis</option>
+            <option value="axes_x_tick_fit">Set fitting for x axis</option>
+            <option value="axes_x_tick_rotate">Set rotation for x axis</option>
+            <option value="axes_x_range_timeseries">Set range in timeseries for x axis</option>
+            <option value="axes_y_default">Set default y domain</option>
+            <option value="domain_y">Update y domain automatically</option>
+            <option value="axes_x_extent">Set default x extent</option>
+            <option value="data_columned">Columned data</option>
+            <option value="data_rowed">Rowed data</option>
+            <option value="data_json">JSON data</option>
+            <option value="data_url">Data from URL</option>
+            <option value="data_hide">Hide data when init</option>
+            <option value="data_load">Load ordinary data</option>
+            <option value="data_load_timeseries">Load timeseries data</option>
+            <option value="custom_x_scale">Custom x for all data</option>
+            <option value="custom_xs_scale">Custom x for each data</option>
+            <option value="data_label">Show label on data</option>
+            <option value="data_label_format">Show label on data with format</option>
+            <option value="data_region">Set region of data</option>
+            <option value="data_region_timeseries">Set region of timeseries data</option>
+            <option value="grids">Show x/y grids</option>
+            <option value="grids_timeseries">Show x/y grids with timeseries</option>
+            <option value="grid_x_lines">Show optional x grids</option>
+            <option value="grid_x_lines_timeseries">Show optional x grids with timeseries</option>
+            <option value="grid_focus">Hide focus grid</option>
+            <option value="regions">Show regions</option>
+            <option value="regions_timeseries">Show regions with timeseries</option>
+            <option value="legend">Show legend</option>
+            <option value="tooltip_show">Show tooltip</option>
+            <option value="tooltip_grouped">Show tooltip as each data</option>
+            <option value="bindto">Specify the element binded</option>
+            <option value="padding">Change padding of chart</option>
+            <option value="padding_update">Auto padding when chart updated</option>
+            <option value="emptydata">Show text when empty data</option>
+            <option value="point_r">Change radius of data point</option>
+            <option value="bar_zerobased">Disable zero-based y domain</option>
+            <option value="area_zerobased">Disable zero-based y domain</option>
+            <option value="zoom">Enable zoom</option>
+            <option value="zoom">Zoom on category axis</option>
+            <option value="zoom_reduction">Zoom with reduction</option>
+            <option value="zoom_onzoom">Callback on zoom</option>
+            <option value="subchart">Show subchart</option>
+            <option value="subchart_onbrush">Callback on brush</option>
+            <option value="selection">Select data</option>
+            <option value="interaction_enabled">Disable interaction</option>
+            <option value="api_flow">Flow ordinary data</option>
+            <option value="api_flow_timeseries">Flow timeseries data</option>
+            <option value="api_axis_range">Update axis range</option>
+            <option value="api_axis_label">Update axis label</option>
+            <option value="api_xgrid_lines">Update x grid lines</option>
+            <option value="api_ygrid_lines">Update y grid lines</option>
+            <option value="api_legend">Update legend</option>
+            <option value="api_transform">Transform chart</option>
+            <option value="element">Access svg element of chart</option>
+            <option value="api_data_colors">Update data color</option>
+            <option value="api_tooltip_show">Show tooltip programmatically</option>
+            <option value="requirejs">Load by RequireJS</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-data"><i class="fa fa-file"></i> Data</label>
+        data/charts/<input type="text" id="node-input-data" placeholder="filename.json" style="width: 150px;">
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-showInDashboard" placeholder="" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-showInDashboard" style="width: 70%;">show in dashboard</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-refreshInterval"><i class="fa fa-clock-o"></i> Interval</label>
+        <input type="text" id="node-input-refreshInterval" placeholder="disabled" style="width: 100px;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-tips">
+    <p><strong>C3.js | D3-based reusable chart library</strong> see <a href="http://c3js.org/">http:&#47;&#47;c3js.org&#47;</a> for more details.</p>
+    </div>
+    
+</script>
+
+<script type="text/x-red" data-help-name="chart">
+   <p>C3.js | D3-based reusable chart library</p>
+   <p>see <a href="http://c3js.org/">http:&#47;&#47;c3js.org&#47;</a> for more details.</p>
+   <div class="chart-view"></div>
+</script>
+
+<script type="text/javascript">
+
+    RED.nodes.registerType('chart',{
+        category: 'lloopp',
+        color: '#66CCFF',      
+        defaults: {             
+            name: {value: ""},   
+            data: {value: ""},
+            chartType: {value: "bar", required: true},
+            refreshInterval: {value: 0},
+            showInDashboard: {value: false},
+        },
+        inputs:1,               
+        outputs:0,              
+        icon: "file.png",    
+        align:"right", 
+        label: function() {     
+            return this.name||this.category||"chart";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        },
+        info: function() {
+            var content = document.createElement("div");
+            $(content).css({"position":"relative","height":"100%"});
+            var toolbar = document.createElement("div");
+            toolbar.id = "chart-toolbar";
+            content.appendChild(toolbar);
+
+            toolbar.innerHTML = '<div class="pull-right"><a id="chart-tab-clear" title="reload" class="button" href="#"><i class="fa fa-refresh"></i></a></div> ';
+
+            var widgets = document.createElement("div");
+
+            widgets.innerHTML = $("<iframe/>", {
+                id:"chart-ui-frame",
+                style:"margin: 0; padding: 0; border: none; width: 100%; height:500px",
+                src: "/red/api/chart/"+this.chartType+"/"+this.id,
+            }).appendTo(content);
+            
+            setTimeout(function() {
+                $("#sidebar-content .node-help:first .chart-view").html($(content).html());
+            }, 1);
+
+            return "";
+        },
+        onpaletteadd: function() {
+
+        },
+        onpaletteremove: function() {
+            RED.sidebar.removeTab("chart");
+        },
+    });
+</script>

@@ -1,0 +1,117 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="twitter-stream">
+    <div class="form-row">
+        <label for="node-input-consumer_key" style="width:35%"><i class="fa fa-key"></i> Consumer Key</label>
+        <input type="text" id="node-input-consumer_key" placeholder="Consumer Key" style="width:60%">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-consumer_secret" style="width:35%"><i class="fa fa-key"></i> Consumer Secret</label>
+        <input type="text" id="node-input-consumer_secret" placeholder="Consumer Secret" style="width:60%">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-token" style="width:35%"><i class="fa fa-key"></i> Token</label>
+        <input type="text" id="node-input-token" placeholder="Token" style="width:60%">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-token_secret" style="width:35%"><i class="fa fa-key"></i> Token Secret</label>
+        <input type="text" id="node-input-token_secret" placeholder="Token Secret" style="width:60%">
+    </div>
+
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-location"><i class="fa fa-tasks"></i> Location</label>
+        <input type="text" id="node-input-location" placeholder="Location">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<script type="text/x-red" data-help-name="twitter-stream">
+ 
+<p>Twitter-stream input node.</p>
+<p>Takes strings on <code>msg.track</code> or <code>msg.untrack</code> to track/untrack a search-string in twitter.</p>
+<p>Returns <code>msg.topic</code> based n.topic, twitter obj to <strong>msg.payload</strong>, and <code>msg.text</code> based on twitter text.</p>
+<p>If text is not found, obj is returned as an error.</p>
+<p>Location requires two coordinates, long & lat of both SW and NE. eg for Philippines. 118.608110,4.732255,126.541526,19.784721</p>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('twitter-stream',{
+        color: "#44A2FF",
+        category: 'binding',
+        defaults: {             
+            name: {value:""},
+            consumer_key: {value:"6OxJzYfbe7MigsbGOs59aRYjc", required:true },
+            consumer_secret: {value:"XM2ppm7viKUmQ9Lkr04pRUUP8sKOeQrISDxHxCG1ynEPykCVtl", required:true },
+            token: {value:"41772016-Y6FQU056jVeHtNHsqmi71Odjel4fXGUwDCEjBtxrP", required:true },
+            token_secret: {value:"AOl6Cn2GIx6hLnCplrsUhNnDxAFpI4iFCPCr8NBlM5R82", required:true },
+            topic: {value:""},
+            location: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "twitter.png",
+        button: {
+            onclick: function() {
+                var id = this.id;
+                $.ajax({
+                  url: "twitter-stream/"+id,
+                  type:"POST",
+                  success: function(resp) {
+                    if(resp.success) {
+                        RED.notify(resp.message);
+                    }
+                  },
+                  error: function(jqXHR,textStatus,errorThrown) {
+                      if (jqXHR.status == 404) {
+                          RED.notify("<strong>Error</strong>: twitter-stream node not deployed","error");
+                      } else if (jqXHR.status == 500) {
+                          RED.notify("<strong>Error</strong>: twitter-stream failed, see log for details.","error");
+                      } else if (jqXHR.status == 0) {
+                          RED.notify("<strong>Error</strong>: no response from server","error");
+                      } else {
+                          RED.notify("<strong>Error</strong>: unexpected error: ("+jqXHR.status+") "+textStatus,"error");
+                      }
+                  }
+                });
+            }
+        },
+        label: function() {     
+            return this.name||this.topic||"twitter-stream";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

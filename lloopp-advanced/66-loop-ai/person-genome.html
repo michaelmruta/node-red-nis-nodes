@@ -1,0 +1,111 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+  
+<script type="text/x-red" data-template-name="person-genome">
+
+    <div class="form-row">
+    <p class="text-center">
+      <img src="../../images/loop-ai.png" style="width:85px">
+    </p>
+    </div>
+
+    <h4 class="text-center">Person Genome</h4>
+
+    <!--
+        <div class="form-row">
+            <label for="node-input-app"><i class="fa fa-cog"></i> App ID</label>
+            <input type="text" id="node-input-app" placeholder="loop.ai FB App ID">
+        </div>
+          <div class="form-row">
+            <label for="node-input-user"><i class="fa fa-user"></i> Username</label>
+            <input type="text" id="node-input-user" placeholder="loop.ai Username">
+        </div>
+        <div class="form-row">
+            <label for="node-input-pass"><i class="fa fa-key"></i> Password</label>
+            <input type="password" id="node-input-pass" placeholder="loop.ai Password">
+        </div>
+
+        <hr />
+    -->
+
+    <div class="form-row">
+        <label for="node-input-mashape"><i class="fa fa-key"></i> API Key</label>
+        <input type="text" id="node-input-mashape" placeholder="loop.ai Mashape API Key">
+    </div>
+    <div class="form-row">
+        <label for="node-input-timeout"><i class="fa fa-clock"></i> Timeout</label>
+        <input type="text" id="node-input-timeout" placeholder="auto" style="width:100px"> milliseconds
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-fb"><i class="fa fa-user"></i> User Id</label>
+        <input type="text" id="node-input-fb" placeholder="Facebook User ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-token"><i class="fa fa-key"></i> Token</label>
+        <input type="text" id="node-input-token" placeholder="Facebook Access Token">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+</script>
+
+<script type="text/x-red" data-help-name="person-genome">
+    <p>This node executes both <strong>computeGenomeUsingFacebook</strong> & <strong>retrieveGenome</strong> from Person Genome API of loop.ai in mashape.
+</p>
+    
+    <p>Requires <strong>msg.userId</strong> & <strong>msg.tokenString</strong> as input parameters or as configurations for testing.
+</p>
+    
+    <p>Returns <strong>msg.payload</strong> with <strong>msg.payload.id</strong> which is also equal to <strong>msg.userId</strong>, <strong>msg.payload.elements</strong> which contains a mapped collection of <code>INTERESTED_IN</code>, <code>FAN_OF</code> & <code>PERSONA</code>.
+</p>
+
+    <p>This API enables you to understand your users using their Facebook data. Give the API Facebook credentials and it returns a deep, actionable profile that you can use for personalization. The API depends on accessTokens that at least allows FB likes, but it works much better if all profile information and posts are available.</p>
+    <p>Test account:</p>
+    <pre>User Id:<br />1011963235504410<br /><br />Token:<br />CAAEWR8KSyjUBAEOkg7R6ZBUv3ZAcPrGKsYq5Q6X1xjg7XA4LKt3YS53CgIE9wiXEzZBXqmizDgCfvYg6mN7Pazj5y6bGhbYs50iW3PPYZC28d2fd92dH0VMfpDoEeeIaWgZB01NMr8ek1bPosvI8tORonl4WPZAZAPQlYWVnHSieTjbWym6zrzzVkP729uWxlAZD<br /><br />App ID:<br />(loop-ai -web)<br />305972439599669<br />(lloopp-dev -ios, -web)<br />629505563857630<br /><br />(lloopp-dev-2 -ios)<br />489696381211627<br /><br /></pre>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('person-genome', {
+        color: "#FFE0C2",
+        category: 'binding',
+        defaults: {
+            name: {value:""},
+            timeout: {value:"7000"},
+            mashape: {value:"Cnn0lRzwYCmsh47aEWpFlu4AKSvxp14out6jsnIYpVaYDIV7lo", required: true},
+            // user: {value:"", required: ""},
+            // pass: {value:"lopi", required: ""},
+            // app: {value:"489696381211627", required: true},
+            fb: {value:""},
+            token: {value:""}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "db.png",
+        paletteLabel: "person genome",
+        label: function() {
+            return this.name || "person genome";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>

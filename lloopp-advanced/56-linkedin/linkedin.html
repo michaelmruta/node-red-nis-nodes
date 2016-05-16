@@ -1,0 +1,76 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="linkedin">
+    <div class="form-row">
+        <label for="node-input-client"><i class="fa fa-key"></i> Client ID</label>
+        <input type="text" id="node-input-client" placeholder="Client ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i>Redirect URL</label>
+        <input type="text" id="node-input-url" placeholder="Redirect URL">
+    </div>
+    <div class="form-row">
+        <label for="node-input-state"><i class="fa fa-globe"></i>State</label>
+        <input type="text" id="node-input-state" placeholder="State">
+    </div>
+    <div class="form-row">
+        <label for="node-input-scopes"><i class="fa fa-envelope"></i>Scope(Optional)</label>
+        <select id="node-input-scopes" style="width:73%">
+          <option value="date"></option>
+          <option value="string"></option>
+          <option value="none"></option>
+        </select>
+    </div>
+  <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="linkedin">
+    <p>This node makes <strong>Face++ API</strong> request. Takes an image URL in <strong>msg.topic</strong> otherwise, use <strong>Image URL</strong> setting.</p>
+    <hr />
+    <h3>Sample Configuration</h3>
+    <p>API key: <br /><strong>Cnn0lRzwYCmsh47aEWpFlu4AKSvxp14out6jsnIYpVaYDIV7lo</strong></p>
+    <p>Attributes: <br /><strong>glass,pose,gender,age,race,smiling</strong></p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('linkedin', {
+        color: "#FFAAAA",
+        category: 'binding',
+        defaults: {
+            name: {value:""},
+            client: {value:"", required:true},
+            url: {value:"", required:true},
+            state: {value:"", required:true},
+            scopes: {value:""}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "arrow.png",
+        label: function() {
+            return this.name || "linkedin";
+        },
+        paletteLabel: "linkedin",
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>

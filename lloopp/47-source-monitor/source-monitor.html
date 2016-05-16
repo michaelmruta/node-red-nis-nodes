@@ -1,0 +1,149 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="source-monitor">
+    
+    <div class="form-row">
+         <label for="node-input-slist"><i class="fa fa-list"></i> Source List</label>
+         <input type="text" id="node-input-slist" placeholder="default">
+    </div>
+    
+    <!-- <div class="form-row">
+    <label for="node-input-database"><i class="fa fa-database"></i> Database</label>
+         <input type="text" id="node-input-database" placeholder="[ __TABLES__ ]">
+    </div>
+    <div class="form-row">
+         <label for="node-input-directory"><i class="fa fa-folder"></i> Directory</label>
+         <input type="text" id="node-input-directory" placeholder="[ __FILENAMES__ ]">
+    </div> -->
+
+    <div class="form-row" style="">
+         <label for="node-input-directory"><i class="fa fa-folder"></i> Directory</label>
+         data/<input type="text" id="node-input-directory" placeholder="" style="width:450px;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row-linksholder" style="min-height:320px; width:100%">
+        <table class="linksholder" style="min-width:720px; font-size:12px;"></table>
+    </div>
+  <link href="./../../plugins/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+  <script src="./../../plugins/datatables/jquery.dataTables.min.js" />
+
+</script>
+
+<script type="text/x-red" data-help-name="source-monitor">
+    <p>Keeps track of files in a directory or tables in a database. Sends each source as message when <strong>msg.topic</strong> is <code>next</code></p>
+    <p><code>reset</code> on <strong>msg.topic</strong> recreates json directory tree data which is used to persist the processed files</code>
+    <p><strong>sList</strong> - is the json file which will keep track of the file processing progress.</p>
+    <p><strong>directory</strong> - is the table or path that will be monitored. Default path is <code>./data/&lt;n.directory&gt;</code></p>
+    <hr />
+    <p>Before parsing the path part patterns, braced sections are expanded
+    into a set.  Braced sections start with <code>{</code> and end with <code>}</code>, with any
+    number of comma-delimited sections within.  Braced sections may contain
+    slash characters, so <code>a{/b/c,bcd}</code> would expand into <code>a/b/c</code> and <code>abcd</code>.</p>
+    <p>The following characters have special magic meaning when used in a
+    path portion:</p>
+    <ul>
+    <li><code>*</code> Matches 0 or more characters in a single path portion</li>
+    <li><code>?</code> Matches 1 character</li>
+    <li><code>[...]</code> Matches a range of characters, similar to a RegExp range.
+    If the first character of the range is <code>!</code> or <code>^</code> then it matches
+    any character not in the range.</li>
+    <li><code>!(pattern|pattern|pattern)</code> Matches anything that does not match
+    any of the patterns provided.</li>
+    <li><code>?(pattern|pattern|pattern)</code> Matches zero or one occurrence of the
+    patterns provided.</li>
+    <li><code>+(pattern|pattern|pattern)</code> Matches one or more occurrences of the
+    patterns provided.</li>
+    <li><code>*(a|b|c)</code> Matches zero or more occurrences of the patterns provided</li>
+    <li><code>@(pattern|pat*|pat?erN)</code> Matches exactly one of the patterns
+    provided</li>
+    <li><code>**</code> If a "globstar" is alone in a path portion, then it matches
+    zero or more directories and subdirectories searching for matches.
+    It does not crawl symlinked directories.</li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('source-monitor',{
+        category: 'lloopp',
+        defaults: {
+            name: {value:""},
+            directory: {value:"dump"},
+            slist: {value:"default", required:true}
+        },
+        color:"#FFF94F",
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||this.source||"source-monitor";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+
+            var id = this.id;
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-kue-ui-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.form-row-linksholder");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".form-row-linksholder").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+          $.post( "source/"+id, {"directory" : id }, function(data) {
+              var table = $(".linksholder").dataTable({
+                'bFilter' : false,
+                "paging":  true,
+                "ordering": false,
+                "info":     false,
+                "bLengthChange": false,
+                "data" : data,
+                'aoColumns': [ 
+                      {"data" : "basename" ,"title": "File / Table" ,width: "60%", bSearchable: false },
+                      {"data" : "processed" ,"title": "Processed" ,width: "10%", bSearchable: false },
+                      {"data" : "spent" ,"title": "Time Spent" ,width: "15%", bSearchable: false },
+                      {"data" : "status","title": "Status" ,width: "15%", bSearchable: false }],
+              });
+            })
+        }
+    });
+
+</script>

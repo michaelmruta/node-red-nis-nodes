@@ -1,0 +1,137 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="complex-evt">
+    <div class="form-row">
+        <label for="node-input-collection" style="width:300px">msg.metrics.</label>
+        <input type="text" id="node-input-collection" placeholder="Collection">
+    </div>
+    <div class="form-row">
+        <label for="node-input-attribute" style="width:300px">msg.metrics.[collection][?].</label>
+        <input type="text" id="node-input-attribute" placeholder="Attribute (optional)">
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-events"><i class="fa fa-wrench"></i> Events</label>
+        <input type="text" id="node-input-events" placeholder="Events">
+    </div>
+    <div class="form-row">
+        <label for="node-input-timeframe"><i class="fa fa-wrench"></i> Frames</label>
+        <input type="text" id="node-input-timeframe" placeholder="Frames">
+    </div>
+    <div class="form-row">
+        <label for="node-input-multiplier"><i class="fa fa-wrench"></i> Multiplier</label>
+        <select type="text" id="node-input-multiplier">
+          <option value="1000">seconds</option>
+          <option value="60000">minutes</option>
+          <option value="3600000">hours</option>
+          <option value="86400000">days</option>
+          <option value="604800000">weeks</option>
+          <option value="2592000000">months</option>
+          <option value="31536000000">years</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-windows"><i class="fa fa-wrench"></i> Windows</label>
+        <input type="text" id="node-input-windows" placeholder="windows">
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-tips">See the Info tab for help on using complex-event node.</div>
+</script>
+
+
+<script type="text/x-red" data-help-name="complex-evt">
+
+  <p>Complex Event is a series of event collectively grouped in a timeframe.</p>
+
+  <p>Takes a <strong>list of objects</strong> and return a set of windows which is a grouped list of lists if an <strong>attribute</strong> 
+  is defined or list of objects. It only selects latest <strong>events</strong> count. Frames is the <strong>timeframe</strong> in <i>seconds</i>
+  will be group into <strong>windows</strong>. Set windows to <i>zero</i> if all events should be in a window.</p>
+  
+  <p>Define an attribute if complex event is used in conjuction with <strong>statistics node</strong> to make a basic <strong>Complex Event Processor</strong></p>
+
+  <h3>Example configuration:</h3>
+
+  <p><i>function(array collection, int frames,string attr,int windows(optional)) </i></p><br />
+  <p>
+  events = 8<br />
+  timeframe = 2<br />
+  windows = 3<br />
+  <p>
+
+  <pre>.. [..] [..] [..]</pre>
+  <br />
+
+  <h4>Example data:</h4>
+  Input:
+  <pre>[ {amount:10,date:1387271989749 }, {amount:20,date:1387271989760} ]</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 2592000, null, 0)</pre>
+  Output:
+  <pre>{ 535212959:[{amount:10,date:1387271989749}, {amount:20,date:1387271989760}] }</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 3600, null, 0)</pre>
+  Ouput:
+  <pre>{ 385353330485:[{amount:10,date:1387271989749}], 385353330488:[{amount:20,date:1387271989760}]</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 3600, "amount", 0)</pre>
+  Ouput:
+  <pre>{ 385353330485:[10, 2] }</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 3600, "amount", 1)</pre>
+  Ouput:
+  <pre>[10, 2]</pre>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('complex-evt',{
+        category: 'binding',
+        color: "#3FADB5",
+        defaults: {            
+            name: {value:""},  
+            collection: {value:"", required:true},
+            attribute: {value:"optional" },
+            events: {value:1000, required:true},
+            timeframe: {value:1, required:true},
+            multiplier: {value:1000},
+            windows: {value:0, required:true}
+        },
+        inputs:1,              
+        outputs:1,
+        icon: "function.png",           
+        paletteLabel: "complex event",
+        label: function() {    
+            return this.name||"complex event";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

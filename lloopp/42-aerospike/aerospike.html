@@ -1,0 +1,113 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="aerospike-in">
+    <div class="form-row">
+        <label for="node-input-namespace"><i class="icon-wrench"></i> Namespace</label>
+        <input type="text" id="node-input-namespace" placeholder="Namespace">
+    </div>
+    <div class="form-row">
+        <label for="node-input-set"><i class="icon-wrench"></i> Set</label>
+        <input type="text" id="node-input-set" placeholder="Set">        
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-debug" placeholder="" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-debug" style="width: 70%;">Debug</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="aerospike-in">
+    <p>A node used to retrieve data using <strong>msg.payload.id</strong> in an Aerospike database. Returns <strong>msg.profile</strong></p>
+</script>
+
+<!--  -->
+<script type="text/x-red" data-template-name="aerospike-out">
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+            <option value="insert/update">insert/update</option>
+            <option value="remove">remove</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-namespace"><i class="icon-wrench"></i> Namespace</label>
+        <input type="text" id="node-input-namespace" placeholder="Namespace">
+    </div>
+    <div class="form-row">
+        <label for="node-input-set"><i class="icon-wrench"></i> Set</label>
+        <input type="text" id="node-input-set" placeholder="Set">        
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-debug" placeholder="" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-debug" style="width: 70%;">Debug</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="aerospike-out">
+    <p>A node used to insert/update or delete data using <strong>msg.profile</strong> in an Aerospike database. Requires a <strong>msg.payload.id</strong></p>
+</script>
+
+
+<script type="text/javascript">
+    
+     RED.nodes.registerType('aerospike-in',{
+        defaults: {
+            name: {value:""},
+            debug: {value:""},
+            namespace: {value: "toolbox", required: true},
+            set: {value: "profiles", required: true},
+        },
+        category: 'lloopp',
+        color: '#FFDBDB',
+        inputs:1,
+        outputs:1,
+        icon: "mongodb.png",
+        label: function() {
+            return this.name||"aerospike";
+        }
+    });
+
+    RED.nodes.registerType('aerospike-out',{
+        category: 'lloopp',
+        color: '#FFDBDB',
+        defaults: {
+            name: {value:""}, 
+            debug: {value:""}, 
+            operation: {value: "insert/update"},
+            namespace: {value: "toolbox", required: true},
+            set: {value: "profiles", required: true},   
+        },       
+        inputs:1,
+        outputs:0,
+        align: 'right',
+        icon: "mongodb.png",
+        label: function() {
+            return this.name||"aerospike";
+        },
+    });
+</script>

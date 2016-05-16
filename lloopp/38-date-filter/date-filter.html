@@ -1,0 +1,88 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta & Alexander Pimentel (2015)
+
+-->
+  
+<link href="vendor/daterangepicker/daterangepicker-bs2.css" rel="stylesheet" type="text/css" />
+<script src="vendor/daterangepicker/daterangepicker.js" type="text/javascript" /></script>
+
+<script type="text/x-red" data-template-name="date filter">
+    <style type="text/css">
+        .daterangepicker.dropdown-menu { 
+            border-radius: 0;
+            width: 632px !important;
+            margin-left: 0px !important
+        }
+        .daterangepicker {
+            min-width: 640px;
+        }
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-attribute"><i class="icon-wrench"></i> Date</label>
+        msg.<input type="text" id="node-input-attribute" style="width:180px" placeholder="payload.date">
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-datetimepicker"><i class="icon-calendar"></i> Range</label>
+        <input class="form-control" type="text" value="" id="node-input-datetimepicker" placeholder="Date Range" style="width: 60%">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input class="form-control" type="text" value="" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="date filter">
+    <p>A node used to filter data by date. Filters messages whose date attribute is within the given date range.</p>
+</script>
+
+<script type="text/javascript">   
+    var d = new Date();
+    var month = d.getMonth();
+    var day = d.getDate();
+    var year = d.getFullYear();
+
+    RED.nodes.registerType('date filter',{
+        category: 'lloopp',
+        color: '#D8BFD8',
+        defaults: {
+            name: {value:""},
+            datetimepicker: {value:"",required:true},
+            attribute: {value:"",required:true}
+        },       
+        inputs:1,
+        outputs:1,
+        icon: "arrow.png",
+        label: function() {
+            return this.name||"date filter";
+        },
+        oneditprepare: function function_name () {
+
+            $('#node-input-datetimepicker').daterangepicker(
+                {
+                    timePicker: true, 
+                    timePickerIncrement: 30, 
+                    format: 'MM/DD/YYYY h:mm A',
+                    startDate: new Date(),
+                    endDate: new Date()
+                }
+            ,function() {});
+        }
+    });
+</script>

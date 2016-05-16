@@ -1,0 +1,210 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="file-stream in">
+
+    <div class="form-row">
+         <label for="node-input-filename"><i class="fa fa-file"></i> Filename</label>
+         <input type="text" id="node-input-filename" placeholder="Filename">
+    </div>
+
+    <div class="form-row">
+         <label for="node-input-start-end"><i class="fa fa-cog"></i> Lines</label>
+         from <input type="text" id="node-input-start" style="width:100px" placeholder="1">
+         to <input type="text" id="node-input-end" style="width:100px" placeholder="E0F">
+    </div>
+    <div class="form-row">
+        <label for="node-input-format"><i class="fa fa-sign-out"></i> Output as</label>
+        <select id="node-input-format">
+            <option value="utf8">a utf8 string</option>
+            <option value="">a Buffer</option>
+        </select>
+    </div>
+
+    <div class="form-row text-center">
+        <button type="button" class="btn btn-default btn-xs" onclick="javascript:$('.form-advanced-options').toggleClass('hidden');">
+        <small><i class="fa fa-cog"></i> Show/Hide Advanced Options</small></button>
+    </div>
+
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-lbl"></label>
+        <input type="checkbox" id="node-input-lbl" style="width:20px; vertical-align:top"> Line-by-Line
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-concurrency"><i class="fa fa-wrench"></i> Concurrency</label>
+        <input type="text" id="node-input-concurrency" placeholder="100">
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-throttle"></label>
+        <input type="checkbox" id="node-input-throttle" style="width:20px; vertical-align:top"> Throttle
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-byteRate"><i class="fa fa-wrench"></i> Byte Rate</label>
+        <input type="text" id="node-input-byteRate" placeholder="131072">
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-chunkSize"><i class="fa fa-wrench"></i> Chunk Size</label>
+        <input type="text" id="node-input-chunkSize" placeholder="131072">
+    </div>    
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-highWaterMark"><i class="fa fa-wrench"></i> High Watermark</label>
+        <input type="text" id="node-input-highWaterMark" placeholder="0">
+    </div>
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-tips">
+    <p><strong>Note:</strong> This node converts each line of a file to a message using the <a target="_blank" href="https://www.npmjs.com/package/byline">byline</a> module.</p>
+    </div>
+
+</script>
+
+<style>
+    .form-advanced-options label{
+        width:150px;
+    }
+    .form-advanced-options input, 
+    .form-advanced-options select{
+        width:180px;
+    }
+</style>
+
+<script type="text/x-red" data-help-name="file-stream in">
+
+    <p>Takes as string <code>start</code> or <code>stop</code> on <strong>msg.topic</strong>.
+
+    <p>Reads the specified file and sends the content as <b>msg.payload</b>, and the filename as <b>msg.filename</b>.</p>
+    <p>The filename can be configured in the node, if left blank it should be set in an incoming message on <b>msg.filename</b>.</p>
+
+    <h3>Throttling</h3>
+    <p>Inspired by node-throttle module, but acts as a through stream and splits input chunks if required to maintain target speed as close as possible.</p>
+    <p>
+    <strong>bytes</strong> - targeted speed in bytes per second<br />
+    <br />
+    <strong>chunk size</strong> - (default is 10) - output chunk rate. If target speed is 20000 bytes per second and chunk rate is 100, youw will have 100 chunks per second stream, each 200 bytes in size (on average). Note that if input stream is slower then target, chunks are sent immideately at input rate, wich could be higher than target chunk rate. If input is 1000 chunks per second, each 10 bytes shape(20000, 500) should give same 1000 chunk per second x 10 bytes stream.<br />
+    <br />
+    <strong>high watermark</strong> - size when buffer is considered full. Default to 0.<br />
+    <br />
+    Byte Rate options are <strong>131072</strong> (128kb) or <strong>2097152</strong> or (2mb).
+    </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('file-stream in',{
+        category: 'lloopp',
+        defaults: {
+            name: {value:""},
+            filename: {value:""},
+            start: {value:""},
+            end: {value:""},
+            format: {value:"utf8"},
+            lbl: {value:false},
+            concurrency: {value:100},
+            byteRate: {value: 131072},
+            chunkSize: {value: 10},
+            highWaterMark: {value: 0},
+            throttle: {value:true}
+        },
+        color:"#FDF0C2",
+        inputs:1,
+        outputs:2,
+        icon: "file.png",
+        label: function() {
+            return this.name|| (this.filename ? this.filename.replace(/^.*[\\\/]/, '') : "file-stream");
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+
+<script type="text/x-red" data-template-name="file-stream out">
+    <div class="form-row node-input-filename">
+         <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="file.label.filename"></span></label>
+         <input type="text" id="node-input-filename">
+    </div>
+    <div class="form-row">
+        <label for="node-input-overwriteFile"><i class="fa fa-random"></i> <span data-i18n="file.label.action"></span></label>
+        <select type="text" id="node-input-overwriteFile" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="false" data-i18n="file.action.append"></option>
+            <option value="true" data-i18n="file.action.overwrite"></option>
+            <option value="delete" data-i18n="file.action.delete"></option>
+        </select>
+    </div>
+    <div class="form-row" id="node-appline">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-appendNewline" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-appendNewline" style="width: 70%;"><span data-i18n="file.label.addnewline"></span></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-createDir" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-createDir" style="width: 70%;"><span data-i18n="file.label.createdir"></span></label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="file-stream out">
+    <p>Writes <b>msg.payload</b> to the file specified, e.g. to create a log.</p>
+    <p>The filename can be configured in the node, if left blank it should be set in an incoming message on <b>msg.filename</b>.</p>
+    <p>A newline is added to every message. But this can be turned off if required, for example, to allow binary files to be written.</p>
+    <p>The default behaviour is to append to the file. This can be changed to overwrite the file each time, for example if you want to output a "static" web page or report.</p>
+    <p>This node can also be configured to delete a file if required. <i>Note:</i> Using msg.delete is now deprecated.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('file-stream out',{
+        category: 'lloopp',
+        defaults: {
+            name: {value:""},
+            filename: {value:""},
+            appendNewline: {value:true},
+            createDir: {value:false},
+            overwriteFile: {value:"false"}
+        },
+        color:"#FDF0C2",
+        inputs:1,
+        outputs:0,
+        icon: "file.png",
+        align: "right",
+        label: function() {
+            if (this.overwriteFile === "delete") {
+                return this.name||"file-overwrite";
+            } else {
+                return this.name||this.filename||"file-write";
+            }
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+          $("#node-input-overwriteFile").on("change",function() {
+            if (this.value === "delete") { $("#node-appline").hide(); }
+            else { $("#node-appline").show(); }
+          });
+        }
+    });
+</script>

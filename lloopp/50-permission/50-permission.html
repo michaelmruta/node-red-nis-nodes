@@ -1,0 +1,134 @@
+c<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+  
+<script type="text/x-red" data-template-name="permission">
+    <div class="form-row">
+        <label for="node-input-roles"><i class="fa fa-cog"></i> Roles</label>
+        <textarea type="text" id="node-input-roles" style="width:60%;height:100px" placeholder="Admin,Developer,Tester,Analyst,User,Guest" value="Admin"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-users"><i class="fa fa-user"></i> Users</label>
+        <textarea type="text" id="node-input-users" style="width:60%;height:100px" placeholder="meku,roxxy,xander"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-access"><i class="fa fa-cog"></i> Access</label>
+            <select style="width: 150px" id="node-input-access">
+                <option value="r">read</option>
+                <option value="rw">read/write</option>
+           </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-revision"><i class="fa fa-file"></i> Revision</label>
+        <input type="text" id="node-input-revision" readonly="readonly" style="width:100px" >
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="permission">
+    
+    <h4 style="color:red">BETA - this node must be tested throughly first</h4>
+    <h4 style="color:red">Partial Deploy </h4>
+    <hr />
+    <h3>Hierarchical Role Based Access Control</h3>
+    <p>This node sets read and write permissions to the current workspace based on users
+    roles. You can explicity add specific users to grant permissions.</p>
+    <p>Permissions is set in <code>./config/permissions.json</code></p>
+    <p>User Roles is set in <a href="/users">User Management</a></p>
+    <p>These are the available role as of the now: <code>Admin</code>, <code>Developer</code>, <code>Tester</code>, <code>Analyst</code>, <code>User</code>, <code>Guest</code></p>
+    <p>The node is bypassed by the super user or <code>Root</code> account</p>
+
+    <h3>Implementation & Important Notes</h3>
+    <ul>
+        <li>Use only 1 permission node per sheet.</li>
+        <li>Do not include permission nodes in Importing and Exporting workflows.</li>
+        <li>If the role or name of the current user is found inside any permission node, the user could read the whole workspace.</li>
+        <li>If a user can read the workspace, any sheet that does not have permission nodes is writable to that user. He can also add new sheets.</li>
+        <li>If the permission node has read/write, any user who matched the role or has name in the node could write on the sheet where the node is placed.</li>
+        <li>A user will not be able to deploy if he modified a sheet where he have no write access.</li>
+        <li>If you are certain that you have only modified your sheet and have the right permissions but cannot deploy, the workspace must have been modified by someone else,
+        you can either try performing a partial deploy or reloading the workspace then applying your changes again. You can use import/export function for convenience.</li>
+        <li>If you still cannot deploy, contact your administrator for assistance.</li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('permission',{
+        category: 'lloopp',
+        color:"#FF6699",
+        defaults: {
+            name: {value:""},
+            roles: {value:'Admin',required:true},
+            users: {value:""},
+            access: {value:'rw',required:true},
+            revision: {value:1},
+            last_modified: {value:""}
+        },
+        inputs:0,
+        outputs:0,
+        icon: "lock.png",
+        onpaletteadd: function () {
+            var that = this;
+            $.get("permission/user", function(user){
+               that.defaults.users.value = user.username;
+               // console.log(that)
+            });
+        },
+        oneditprepare: function () {
+            // default 'user' field to current user
+            $.get("permission/user", function(user){
+                var currUser = user.username;
+                var users = $("#node-input-users").val().trim();
+                if ( users == "" ) {
+                    $("#node-input-users").val(currUser);
+                }
+            });
+
+            // disable 'OK' button if input roles is not in pre-defined role values
+            $("#node-input-roles").on('input',function(e) {
+                var roles = ['Admin','Developer','Tester','Analyst','User','Guest'];
+                var partsOfRoles = e.target.value.split(',');
+
+                var hasInvalidRole = false;
+                for (var i=0; i < partsOfRoles.length; i++) {
+                    if ($.inArray(partsOfRoles[i], roles) < 0) {
+                        hasInvalidRole = true;
+                        break;
+                    }
+                }
+
+                if (hasInvalidRole) {
+                    $('#node-dialog-ok').button("disable");
+                } else {
+                    $('#node-dialog-ok').button("enable");
+                }
+            });
+        },
+        oneditcancel: function () {
+            $('#node-dialog-ok').button("enable");
+        },
+        label: function() {
+            return this.name||"permission";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

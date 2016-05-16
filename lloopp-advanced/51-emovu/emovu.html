@@ -1,0 +1,70 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<script type="text/x-red" data-template-name="emovu">
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-database"></i> URL</label>
+        <input type="text" id="node-input-url" placeholder="http://">
+    </div>
+    <div class="form-row">
+        <label for="node-input-key"><i class="fa fa-key"></i> API Key</label>
+        <input type="text" id="node-input-key" placeholder="Mashape API Key">
+    </div>
+    <div class="form-row">
+        <label for="node-input-license"><i class="fa fa-license"></i> License Key</label>
+        <input type="text" id="node-input-license" placeholder="EmoVu License Key">
+    </div>
+    <br />
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="emovu in">
+<p>Takes a <strong>msg.filename</strong> as to send a image using a local file.</p>
+<p>Use the image endpoint to extract age, gender, emotion, face recognition results and more from static images. All common image formats including .jpg, .bmp, .png, .tif, and .pgm are supported. For a detailed description visit <a href="http://emovu.com/docs/html/web_api.htm">http://emovu.com/docs/html/web_api.htm</a>.</p>
+<p>This node makes EmoVu API request.</p>
+<hr />
+<h3>Sample Configuration</h3>
+<pre>API key: <strong>fSSuWYGJkfmsh2uscyRr3Ywy4BJfp1UzzAOjsnWWLpld0EI2Rm</strong><br />
+License key: <strong>83183214218355043057421913381671811509183419002535089067521534861821811576</strong></pre>
+</script>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('emovu', {
+        color: "#FFAAAA",
+        category: 'binding',
+        defaults: {
+            name: {value:""},
+            key: {value:"", required:true},
+            license: {value:"", required:true},
+            url: {value:"https://eyeris-emovu1.p.mashape.com/api/image/", required:true}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "inject.png",
+        label: function() {
+            return this.name || "emovu";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>

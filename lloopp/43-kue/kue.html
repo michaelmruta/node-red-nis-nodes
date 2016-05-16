@@ -1,0 +1,140 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2015)
+-->
+
+<!-- ../kue/lib/http/public/stylesheets/main.css -->
+<!-- body{ padding: 0px 20px 0 90px; } -->
+
+<script type="text/x-red" data-template-name="kue">
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-bookmark"></i> Redis Host</label>
+        <input class="input-append-left" type="text" id="node-input-host" placeholder="localhost" style="width: 40%;" >
+        <label for="node-input-port" style="margin-left: 10px; width: 35px; "> Port</label>
+        <input type="text" id="node-input-port" placeholder="6379" style="width:45px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-set"><i class="fa fa-list-ul"></i> Queue</label>
+        <input type="text" id="node-input-set" placeholder="Queue">
+    </div>
+    <div class="form-row node-kue-ui-row">
+        <div class="loading text-center"><i class="fa fa-spinner fa-pulse"></i> Loading...</div>
+        <iframe id="node-kue-frame" src="" seamless="seamless" frameBorder="0" 
+            style="min-width:640px;height:480px"></iframe>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="kue">
+<p>Kue is a priority job queue backed by redis. Creates a queue when <strong>msg.topic</strong> is equal to <code>create</code>,  starts the queue when <code>process</code>, pauses the queue when <code>pause</code> and resumes when <code>resume</code>.</p>
+<p>This node is using port <strong>8888</strong> to display job queues.</p>
+<p>Takes a JSON object using <strong>msg.payload</strong>. Sets job title using <strong>msg.payload.title</strong>. Sets job delay using <strong>msg.delay</strong>.</p>
+<p>Returns messages in Output 1 as they are queued.</p>
+<p>Returns messages in Output 2 as they are processed.</p>
+<p>Click the <strong>button</strong> to manually process the queue.</p>
+<p>Sample Output:
+<pre>{
+  "id": "1",
+  "type": "default",
+  "data": {
+    "email": "user@google.com",
+    "title": "default"
+  },
+  "priority": 0,
+  "attempts": {
+    "made": 0,
+    "remaining": 1,
+    "max": 1
+  }
+}
+</pre><p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('kue',{
+        color: "#FF8000",
+        category: 'lloopp',
+        defaults: {             
+            set: {value:"default", required:true},
+            host: {value:"localhost"},
+            port: {value:"6379"},
+            concurrency: {value:20}
+        },
+        inputs:1,
+        outputs:2,
+        icon: "timer.png",
+        label: function() {     
+            return this.set||"kue"
+        },
+        labelStyle: function() { 
+            return this.set?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+
+            $('iframe#node-kue-frame').attr('src',"http://"+this.host+":8888/");
+            $('iframe#node-kue-frame').load(function(){
+                $(".loading").remove();
+            }).fadeIn('fast');
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-kue-ui-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-kue-ui-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-kue-ui-row").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+        },        
+        button: {
+            onclick: function() {
+                var id = this.id;
+                $.ajax({
+                  url: "kue/"+id,
+                  type:"POST",
+                  success: function(resp) {
+
+                  },
+                  error: function(jqXHR,textStatus,errorThrown) {
+                      if (jqXHR.status == 404) {
+                          RED.notify("<strong>Error</strong>: kue node not deployed","error");
+                      } else if (jqXHR.status == 500) {
+                          RED.notify("<strong>Error</strong>: kue failed, see log for details.","error");
+                      } else if (jqXHR.status == 0) {
+                          RED.notify("<strong>Error</strong>: no response from server","error");
+                      } else {
+                          RED.notify("<strong>Error</strong>: unexpected error: ("+jqXHR.status+") "+textStatus,"error");
+                      }
+                  }
+                });
+            }
+        }
+    });
+</script>

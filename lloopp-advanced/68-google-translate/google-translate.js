@@ -12,39 +12,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Author: Michael Angelo Ruta (2015)
+ *
  **/
-
-String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g,
-        function (a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
-    );
-};
 
 module.exports = function(RED) {
     "use strict";
 
-    function RichTextNode(n) {
-
+    function GoogleTranslateNode(n) {
+        // Create a RED node
         RED.nodes.createNode(this,n);
-
         var node = this;
-        
-        this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
 
-            if(n.supplant) {
-                msg.topic = n.name.supplant(msg.payload);
-                msg[n.attribute] = n.html.supplant(msg.payload);
-            } else {
-                msg.topic = n.name || "untitled";
-                msg[n.attribute] = n.html;
-            }
-            node.send(msg);
+        var googleTranslate = require('google-translate')(n.key);    
+
+        // respond to inputs....
+        this.on('input', function (msg) {
+            googleTranslate.translate(msg.payload, 'es', function(err, translation) {
+              node.send(translation.translatedText);
+            });
         });
 
     }
-    RED.nodes.registerType("rich-text",RichTextNode);
+
+    RED.nodes.registerType("google-translate",GoogleTranslateNode);
+
 }
