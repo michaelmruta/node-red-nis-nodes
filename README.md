@@ -181,4 +181,6 @@ Parallel enables easy multi-thread processing.
 
 Copyright 2014, 2015 Natural Intelligence Solutions. under [the Apache 2.0 license](LICENSE).
 
+Most of these nodes are experimental. Use at your own risk.
+
 </body></html>
