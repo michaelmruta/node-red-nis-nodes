@@ -1,0 +1,165 @@
+<!--
+  Copyright 2016 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2016)
+-->
+
+<script type="text/x-red" data-template-name="marklogic-in">
+
+    <div class="form-row">
+    <p class="text-center">
+        <img src="../../images/marklogic-logo.png" style="width:240px">
+    </p>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-cluster"><i class="icon-wrench"></i> Cluster</label>
+        <input type="text" id="node-input-cluster" placeholder="use server config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="icon-wrench"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">        
+    </div>
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-model"><i class="icon-wrench"></i> Model</label>
+        <input type="text" id="node-input-model" placeholder="Model">        
+    </div>
+
+    <div class="form-row text-center">
+        <button type="button" class="btn btn-default btn-xs" onclick="javascript:$('.form-advanced-options').toggleClass('hidden');">
+        <small><i class="fa fa-cog"></i> Show/Hide Advanced Options</small></button>
+    </div>
+    
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-lockTime"><i class="icon-wrench"></i> Locking</label>
+        <input type="number" id="node-input-lockTime" placeholder="time" style="width:70px" min="0.001" max="10000">
+        <input type="number" id="node-input-lockTimeout" placeholder="timeout" style="width:70px" min="0.001" max="10000"> seconds
+    </div> 
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-opTimeout"><i class="icon-wrench"></i> Op. Timeout</label>
+        <input type="number" id="node-input-opTimeout" placeholder="1000" style="width:100px" min="1" max="10000"> milliseconds 
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-debug"></label>
+        <input type="checkbox" id="node-input-debug" style="width:20px; vertical-align:top"> Debug
+    </div>
+    <hr />
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div id="coucbase-in-note" class="form-tips">
+      <p><b>TIP: </b><small>leave lockTime blank to disable record locking using CAS. Make locktTime and Timeout equal to access data as soon as it is unlocked.</small></p>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="marklogic-in">
+    <p>A node used to retrieve data using <strong>msg._id</strong> in an marklogic database</p>
+</script>
+
+<!--  -->
+<script type="text/x-red" data-template-name="marklogic-out">
+
+    <div class="form-row">
+    <p class="text-center">
+      <img src="../../images/marklogic-logo.png" style="width:240px">
+    </p>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+            <option value="upsert">upsert</option>
+            <option value="insert">insert</option>
+            <option value="remove">remove</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-server"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="Host">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-tag"></i> Port</label>
+        <input type="text" id="node-input-port" placeholder="8003 and above">        
+    </div>
+    <div class="form-row">
+        <label for="node-input-directory"><i class="fa fa-tag"></i> Directory</label>
+        <input type="text" id="node-input-directory" placeholder="docs">        
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-username"><i class="fa fa-tag"></i> Username</label>
+        <input type="text" id="node-input-username" placeholder="admin">        
+    </div>
+    <div class="form-row">
+        <label for="node-input-password"><i class="fa fa-tag"></i> Password</label>
+        <input type="password" id="node-input-password" placeholder="password">        
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="marklogic-out">
+    <p>A node used to insert/update data using <strong>msg._id</strong> in an marklogic database</p>
+</script>
+
+<script type="text/javascript">
+    
+     RED.nodes.registerType('marklogic-in',{
+        defaults: {
+            name: {value:""}
+        },
+        category: 'lloopp',
+        color: '#818BFF',
+        inputs:1,
+        outputs:1,
+        icon: "db.png",
+        label: function() {
+            return this.name||this.bucket||"marklogic";
+        }
+    });
+
+    RED.nodes.registerType('marklogic-out',{
+        category: 'lloopp',
+        color: '#818BFF',
+        defaults: {
+            name: {value:""},
+            host: {value:"localhost"},
+            port: {value:"8003"},
+            directory: {value:"docs"}
+        },
+        credentials: {
+            username: {type:"text"},
+            password: {type: "password"},
+        },
+        inputs:1,
+        outputs:1,
+        align: 'right',
+        icon: "db.png",
+        label: function() {
+            return this.name||this.bucket||"marklogic";
+        },
+    });
+</script>

@@ -18,25 +18,25 @@
 
 <script type="text/x-red" data-template-name="complex-evt">
     <div class="form-row">
-        <label for="node-input-collection" style="width:300px">msg.metrics.</label>
-        <input type="text" id="node-input-collection" placeholder="Collection">
+        <label for="node-input-collection" style="width:350px">msg.<i>[(collection payload)]</i></label>
+        <input type="text" id="node-input-collection" placeholder="payload">
     </div>
     <div class="form-row">
-        <label for="node-input-attribute" style="width:300px">msg.metrics.[collection][?].</label>
-        <input type="text" id="node-input-attribute" placeholder="Attribute (optional)">
+        <label for="node-input-attribute" style="width:350px">Pluck into Array Sets <small>(optional)</small></label>
+        <input type="text" id="node-input-attribute" placeholder="if specified collection will be plucked using underscore.js">
     </div>
     <br />
     <div class="form-row">
-        <label for="node-input-events"><i class="fa fa-wrench"></i> Events</label>
-        <input type="text" id="node-input-events" placeholder="Events">
+        <label for="node-input-events"><i class="fa fa-wrench"></i>Max Events</label>
+        <input type="number" id="node-input-events" placeholder="Infinity">
     </div>
     <div class="form-row">
-        <label for="node-input-timeframe"><i class="fa fa-wrench"></i> Frames</label>
-        <input type="text" id="node-input-timeframe" placeholder="Frames">
+        <label for="node-input-timeframe"><i class="fa fa-clock-o"></i> Time Frames</label>
+        <input type="number" id="node-input-timeframe" placeholder="">
     </div>
     <div class="form-row">
         <label for="node-input-multiplier"><i class="fa fa-wrench"></i> Multiplier</label>
-        <select type="text" id="node-input-multiplier">
+        <select id="node-input-multiplier">
           <option value="1000">seconds</option>
           <option value="60000">minutes</option>
           <option value="3600000">hours</option>
@@ -48,7 +48,7 @@
     </div>
     <div class="form-row">
         <label for="node-input-windows"><i class="fa fa-wrench"></i> Windows</label>
-        <input type="text" id="node-input-windows" placeholder="windows">
+        <input type="number" id="node-input-windows" placeholder="windows">
     </div>
     <br />
     <div class="form-row">
@@ -65,25 +65,54 @@
 
   <p>Takes a <strong>list of objects</strong> and return a set of windows which is a grouped list of lists if an <strong>attribute</strong> 
   is defined or list of objects. It only selects latest <strong>events</strong> count. Frames is the <strong>timeframe</strong> in <i>seconds</i>
-  will be group into <strong>windows</strong>. Set windows to <i>zero</i> if all events should be in a window.</p>
+  will be group into <strong>windows</strong>. Set windows to <i>zero</i> if all events should be in a window. The windows indexes will be turned into timestamps points.</p>
+
+  <p>If maximum <strong>evetns</strong> is defined, collection data in the datastore will be left-trimmed/shifted or tailed to the record counts (size) defined. eg. if max events=3, payload [1,2,3,4,5] -> [3,4,5]</p>
   
   <p>Define an attribute if complex event is used in conjuction with <strong>statistics node</strong> to make a basic <strong>Complex Event Processor</strong></p>
 
   <h3>Example configuration:</h3>
 
+  <p><strong>USE CASE:</strong> get all purchases for every 12 hours for the past 3 days (72 hours).</p>
+
   <p><i>function(array collection, int frames,string attr,int windows(optional)) </i></p><br />
   <p>
-  events = 8<br />
-  timeframe = 2<br />
-  windows = 3<br />
+  <strikethrough>max. events = Infinity</strikethrough><br />
+  collection = payload
+  timeframe = 12<br />
+  multiplier = hours<br />
+  windows = 6<br />
   <p>
+
+  <pre>INPUT: {payload:[{amount:1,date:1387271989750},{amount:10,date:1387271989749},{amount:20,date:1387271989760}]}</pre>
+  <pre>OUTPUT: {payload_windows:[[1,10],[20]]}</pre>
+
+  <hr />
+
+  <h4>Example data:</h4>
+  Input:
+  <pre>msg.payload = [ {amount:10,date:1387271989749 }, {amount:20,date:1387271989760} ]</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 2592000, null, 0)</pre>
+  Output:
+  <pre>{ 535212959:[{amount:10,date:1387271989749}, {amount:20,date:1387271989760}] }</pre>
+  <br />
+
+  Config:
+  <pre>collect(input, 3600, null, 0)</pre>
+  Ouput:
+  <pre>{ 385353330485:[{amount:10,date:1387271989749}], 385353330488:[{amount:20,date:1387271989760}]</pre>
+  <br />
+
 
   <pre>.. [..] [..] [..]</pre>
   <br />
 
   <h4>Example data:</h4>
   Input:
-  <pre>[ {amount:10,date:1387271989749 }, {amount:20,date:1387271989760} ]</pre>
+  <pre>msg.payload = [ {amount:10,date:1387271989749 }, {amount:20,date:1387271989760} ]</pre>
   <br />
 
   Config:
@@ -116,9 +145,9 @@
         color: "#3FADB5",
         defaults: {            
             name: {value:""},  
-            collection: {value:"", required:true},
-            attribute: {value:"optional" },
-            events: {value:1000, required:true},
+            collection: {value:"payload", required:true},
+            attribute: {value:"" },
+            events: {value:1000},
             timeframe: {value:1, required:true},
             multiplier: {value:1000},
             windows: {value:0, required:true}

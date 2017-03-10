@@ -26,54 +26,32 @@ module.exports = function(RED) {
         var node = this;
         var body = ""
 
-        console.log(n);
-        // console.log(atob(":jaiminis"));
-        this.on('input', function (msg) {
-            var model = n.model || msg.model
-            
-            var value = msg.payload;
-            msg.payload = value.slice(0,4000)
-            var url = 'http://130.211.250.165:8300/v1.0/computeGenome?model=Sentosa-Test-11-withImbiah&text=' + msg.payload;
-            // console.log(url);
+        var endpoint = "http://lloopp.loop.ai:8300/v1.0/computeGenome";
 
-            // var Request = unirest.get('http://130.211.250.165:8300/v1.0/computeGenome?model=Sentosa-Test-11-withImbiah&text=' + msg.payload);
-            var Request = unirest.get('http://130.211.250.165:8300/v1.0/computeGenome?model=' + model + '&text=' + msg.payload);
-            Request.timeout(10000)
-
-            var x = Request.auth({
-                user: '',
-                pass: 'jaiminis',
-                sendImmediately: true})
-            .end(function (response) {                
-
-                if(response.error) {
-                    node.error(response.error);
-                } else if(response.raw_body) {
-                    msg.payload = JSON.parse(response.raw_body)
-                }
-                
-                node.send(msg);
-            });
-            
-            
-            // console.log(x.headers);
-            // console.log(msg);
-            // var x = unirest.get('http://lloopp.loop.ai:8300/getConceptList') 
-            //     .header('Accept', 'application/json')
-            //     .field({ 'model': msg.model })
-            //     .end(function(response) {
-                    
-            //         node.status({});
-                    
-            //         if(response.status == 200){
-            //             node.send(response.body);
-            //         } else {
-            //             node.error(response.error);
-            //         }
-                    
-            //     });
-            //     console.log(x);
+        var username = "";
+        var password = "jaiminis";
+        var userpass = new Buffer(username+':'+password);
+        var auth = userpass.toString('base64');
         
+        this.on('input', function (msg) {
+
+            var model = n.model || msg.model
+
+            unirest.post(endpoint + '?cortex=' + model)
+                    .headers({'Authorization':'Basic '+auth,'Content-Type':'text/plain'})
+                    .timeout(10000)
+                    .send(msg.payload)
+                    .end(function (response) {
+                        if(response.error) {
+                            node.error(response.error);
+                            msg.error = response.error
+                            msg.success = false
+                        } else if(response.raw_body) {
+                            msg.payload = JSON.parse(response.raw_body)
+                            msg.success = true
+                        }
+                        node.send(msg);
+                    });
             
         });
     }

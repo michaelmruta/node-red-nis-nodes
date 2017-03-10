@@ -39,7 +39,9 @@ module.exports = function(RED) {
         var fstream, stream, throttledStream, c = 0, total = 0;
         var tps=0, count=0;
         var timeSpent = 0;
-        var REDRAW_INTERVAL = 2;
+        var REDRAW_INTERVAL = 1;
+
+        var clock;
 
         var tick = function() {
             timeSpent++;
@@ -52,6 +54,8 @@ module.exports = function(RED) {
                 }
                 try {
                     node.status({fill:"green",shape:"dot",text:display});
+                    var msg_ = { payload:display };
+                    node.send([null,null,msg_]);
                 } catch(e){
                     node.log(e);
                 }
@@ -60,18 +64,14 @@ module.exports = function(RED) {
         };
 
         var stopClock = function() {
-            tick();
             if(fstream) {
                 fstream.close();
                 fstream = null;
             }
-            clearInterval(clock);
             clock = null;
             timeSpent = 0;
             c = 0;
         }
-
-        var clock;
 
         if (this.format) {
             options['encoding'] = this.format;
@@ -79,6 +79,7 @@ module.exports = function(RED) {
 
         var lr;
         var concurrency = n.concurrency || 100;
+        
         this.on("input",function(msg) {
 
             // msg came from watch node
@@ -94,6 +95,9 @@ module.exports = function(RED) {
             if( n.lbl == true ) {
 
                 if(msg.topic == "start") {
+                    var start = n.start || 0;
+                    var end = n.end == "" ? Infinity : n.end;
+
                     if(!lr) {
                         lr = new LineByLineReader(filename);
                     };
@@ -101,27 +105,36 @@ module.exports = function(RED) {
                     if(!clock) { clock = setInterval(tick, 1000*REDRAW_INTERVAL) };
                     timeSpent = 0;
 
+                    var lineNumber = 0
+
                     lr.on('error', function (err) {
                         node.error(err)
                     });
 
                     lr.on('line', function (line) {
-                        if(concurrency > 0) {
-                            concurrency--;
-                        } else {
-                            lr.pause();
+                        lineNumber += 1;
+                        msg.line = lineNumber;
+                        if( c >= start && c <= end )  {
+                            if(concurrency > 0) {
+                                concurrency--;
+                            } else {
+                                lr.pause();
+                            }
                         }
-                        msg.payload = line;
                         c++;
-                        node.send([msg,null]);
+                        if( c >= start && c <= end )  {
+                            msg.payload = line;
+                            node.send([msg,null]);
+                        }
                     });
 
                     lr.on('end', function () {
-                        var done = {filename:filename,objects:c,spent:timeSpent*REDRAW_INTERVAL,status:"ok"};
+                        var done = {filename:filename,objects:c,spent:timeSpent*REDRAW_INTERVAL,status:"ok",topic:"done"};
                         node.send([null,done])
                     });
                 } else if(msg.topic == "next") {
                     if(lr) {
+                        concurrency +=1;
                         lr.resume();
                     }
                 }
@@ -246,6 +259,7 @@ module.exports = function(RED) {
                 fstream.unpipe(stream);
             }
             stopClock();
+            clearInterval(clock);
             node.status({fill:"red",shape:"dot",text:"error"});
         });
 
@@ -255,6 +269,7 @@ module.exports = function(RED) {
                 fstream.unpipe(stream);
             }
             stopClock();
+            clearInterval(clock);
             node.status({fill:"gray",shape:"ring",text:"closed"});
         });
 

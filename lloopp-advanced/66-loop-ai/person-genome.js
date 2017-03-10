@@ -38,30 +38,6 @@ module.exports = function(RED) {
 		    'Content-Type' : 'application/x-www-form-urlencoded' 
 		};
 
-		// request
-		//   .get("http://profile.loop.ai/loopai/welcome?authOnly=true", { 
-		// 			 	auth: {
-		// 		    user: loopUser,
-		// 		    pass: loopPass,
-		// 		    sendImmediately: false,
-		// 			follows: true
-		// 		}
-		// 	}, function(error, response, body) {
-		// 		if(!error && response.statusCode == 200) {
-		// 			node.log("loop.ai authentication: "+response.statusCode);
-
-		// 			// #TODO
-		// 			// use this to retrieve access key of facebook user
-		// 			// https://www.facebook.com/v2.2/dialog/oauth?app_id=305972439599669&client_id=305972439599669&redirect_uri=http%3A%2F%2Fprofile.loop.ai%2Floopai%2Fprofile%3FauthOnly%3Dtrue%26outputMode%3Djson
-					
-		// 		} else {
-		// 			node.log(error);
-		// 		}
-		// 	})
-		// 	.on('error', function(err) {
-		// 		node.error(err);
-		// 	})
-
         this.on('input', function (msg) {
 
 	        var fbUserId = msg.userId || n.fb;
@@ -85,8 +61,8 @@ module.exports = function(RED) {
 						{headers:headers, qs:qsCompute}, function(error, response, body) {
 						if(!error && response.statusCode == 200) {
 
-							console.log("computeGenomeUsingFacebook:")
-							console.log(body)
+							// console.log("computeGenomeUsingFacebook:")
+							// console.log(body)
 
 							body = JSON.parse(body);
 

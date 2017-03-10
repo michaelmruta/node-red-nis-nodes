@@ -17,6 +17,8 @@
  *
  **/
 
+var helpers = require('toolbox-helpers');
+
 module.exports = function(RED) {
     "use strict";
 
@@ -28,7 +30,7 @@ module.exports = function(RED) {
 
         // respond to inputs....
         this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
+            if(msg.config) n = helpers.autoConfig(msg.config,n,node.id);
 
 			if(!msg.payload.id) {
 				this.error('This requires an ID in the msg.payload.');

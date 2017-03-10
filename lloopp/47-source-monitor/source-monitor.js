@@ -99,7 +99,41 @@ module.exports = function(RED) {
                 node.status({fill:"blue",shape:"dot",text:ctr + "/" + this.files.length });
             }
 
-            if(msg.topic == "next") {
+            if(msg.topic == "update") {
+
+                ctr = 0;
+                var c1 = accessResource(n.slist, this.sources, false);
+                var c2 = (n.directory) ? dirTree('data/'+n.directory, []) 
+                                                : dirTree('data/dump', []);
+
+                // addded files
+                _.each(c2, function(obj) {
+                    if (obj) {
+                        var match = _.where(c1,{filename:obj.filename})
+                        if(match.length == 0) {
+                            c1.push(obj);
+                        } 
+                    }
+                })
+
+                // removed files
+                _.each(c1, function(obj) {
+                    if(obj) {
+                        var match = _.where(c2,{filename:obj.filename})
+                        if(match.length == 0) {
+                            c1.pop(obj);
+                        } 
+                    }
+                })
+
+                // write changes
+                this.files = accessResource(n.slist, c1, true);
+
+                ctr = _.where(c1,{status:"Completed"}).length
+                node.status({fill:"blue",shape:"dot",text:ctr + "/" + this.files.length });
+            }
+
+            if(msg.topic == "next" || msg.topic == "done") {
 
                 // update source list
                 var filesTemp = [];
@@ -110,7 +144,7 @@ module.exports = function(RED) {
                     var file = that[i];
                     if( file.status == "Queued" && msg.filename == file.filename ) {
                         file.status = "Completed";
-                        file.processed = msg.objects.toLocaleString();;
+                        file.processed = msg.objects ? msg.objects.toLocaleString() : "n/a";
                         file.spent = msg.spent + 's';
                         once = true;
                     }
@@ -126,12 +160,16 @@ module.exports = function(RED) {
                 var cursor = unprocessed[0] || {};
 
                 if(cursor && cursor.filename && cursor.type == "file") {
-                    node.send(cursor);
+                    msg.topic = "start";
+                    _.extend(msg,cursor);
+                    node.send(msg);
                     ctr +=1;
                 }
 
                 if(cursor && cursor.tablename && cursor.type == "table") {
-                    node.send(cursor);
+                    msg.topic = "start";
+                    _.extend(msg,cursor);
+                    node.send(msg);
                     ctr +=1;
                 }
 

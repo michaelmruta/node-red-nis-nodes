@@ -17,8 +17,8 @@
  *
  **/
 
-var kue = require('kue');
-var Redis = require('ioredis');
+var kue = require(process.cwd() + '/node_modules/kue');
+var Redis = require(process.cwd() + '/node_modules/ioredis');
 
 var net = require('net');
 var server;

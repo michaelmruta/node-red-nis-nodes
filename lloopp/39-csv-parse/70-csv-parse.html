@@ -1,4 +1,4 @@
-c<!--
+<!--
   Copyright 2015 Natural Intelligence Solutions.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ c<!--
 <script type="text/x-red" data-template-name="csv-parse">
     <div class="form-row">
         <label for="node-input-temp"><i class="fa fa-list"></i> <span data-i18n="csv.label.columns"></span></label>
-        <textarea type="text" id="node-input-temp" data-i18n="[placeholder]csv.placeholder.columns" style="width:60%;height:200px"/>
+        <textarea type="text" id="node-input-temp" data-i18n="[placeholder]csv.placeholder.columns" style="width:330px;height:350px" required/>
     </div>
     <div class="form-row">
         <label for="node-input-select-sep"><i class="fa fa-text-width"></i> <span data-i18n="csv.label.separator"></span></label>
@@ -51,18 +51,24 @@ c<!--
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
+        <label>&nbsp;</label>        
+        <input type="checkbox" id="node-input-legacy" style="display: inline-block; width: auto; vertical-align: top;">
+           <label for="node-input-legacy" style="width: 70%;">Use legacy parser</label>
+    </div>
+    <div class="form-row" style="margin-bottom:0">
         <label>&nbsp;</label>
-        
         <input type="checkbox" id="node-input-fixed" style="display: inline-block; width: auto; vertical-align: top;">
            <label for="node-input-fixed" style="width: 70%;">Fixed Columns</label>
+    </div>
+    <div class="form-row" style="margin-bottom:0">
         <label>&nbsp;</label>
-        
-        <input type="checkbox" id="node-input-legacy" style="display: inline-block; width: auto; vertical-align: top;">
-           <label for="node-input-legacy" style="width: 70%;">Use Node-Red#quot;s original parser</label>
-        <label>&nbsp;</label>
-        
         <input type="checkbox" id="node-input-detect" style="display: inline-block; width: auto; vertical-align: top;">
-           <label for="node-input-detect" style="width: 70%;">detect data types</label>
+           <label for="node-input-detect" style="width: 70%;">Detect Data Types</label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-nempty" style="display: inline-block; width: auto; vertical-align: top;">
+           <label for="node-input-nempty" style="width: 70%;">Delete Blank/Empty Fields</label>
     </div>
     <div class="form-tips">
         <p><b>Note:</b> the columns should always be specified comma separated - even if another separator is chosen for the data.</p>
@@ -143,11 +149,12 @@ c<!--
             fixed: {value:true},
             temp: {value:""},
             legacy: {value:false},
-            detect: {value:true}
+            detect: {value:true},
+            nempty: {value:false}
         },
         inputs:1,
         outputs:1,
-        icon: "arrow-in.png",
+        icon: "parser-csv.png",
         paletteLabel: "csv parse",
         label: function() {
             return this.name||"csv parse";
@@ -172,6 +179,17 @@ c<!--
                     $("#node-input-sep").show().focus();
                 } else {
                     $("#node-input-sep").hide();
+                }
+            });
+            $("#node-input-legacy").change(function() {
+                if ($(this).is(':checked')) {
+                    $("#node-input-fixed").prop("disabled",true)
+                    $("#node-input-detect").prop("disabled",true)
+                    $("#node-input-nempty").prop("disabled",true)
+                } else {
+                    $("#node-input-fixed").prop("disabled",false)
+                    $("#node-input-detect").prop("disabled",false)
+                    $("#node-input-nempty").prop("disabled",false)
                 }
             });
             if (this.quo == "," || this.quo == "\\t" || this.quo == ";" || this.quo == ":" || this.quo == " " || this.quo == "#") {

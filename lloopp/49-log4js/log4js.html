@@ -49,6 +49,7 @@
 <script type="text/x-red" data-help-name="log4js">
    <p>Log4js node takes a log message using <strong>msg.payload</strong> or complete <strong>msg</strong> object and log level in <strong>msg.logger</strong>. Creates a JSON event logger which contain the whole message if <strong>json</strong> is checked.</p>
    <p><b>Note: </b>This node does not work inside a subflow.</p>
+   <iframe id="log-viewer" frameborder="0" style="width:100%;height:100vh"></iframe>
 </script>
 
 <script type="text/javascript">
@@ -70,6 +71,15 @@
         },
         labelStyle: function() { 
             return this.name?"node_label_italic":"";
+        },
+        info: function() {
+            var category = this.category
+            $(function() {
+              setTimeout(function() {
+                $(document.getElementById("log-viewer")).attr('src','/red/admin/log4js/'+category);
+              },200)
+            })
+            return "";
         }
     });
 </script>

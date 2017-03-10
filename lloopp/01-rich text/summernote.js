@@ -14,6 +14,8 @@
  * limitations under the License.
  **/
 
+var helpers = require('toolbox-helpers')
+
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g,
         function (a, b) {
@@ -33,11 +35,16 @@ module.exports = function(RED) {
         var node = this;
         
         this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
+
+            if(msg.config) n = helpers.autoConfig(msg.config,n,node.id);
 
             if(n.supplant) {
                 msg.topic = n.name.supplant(msg.payload);
-                msg[n.attribute] = n.html.supplant(msg.payload);
+                if(msg.html && msg.payload.constructor == Object) {
+                    msg[n.attribute] = msg.html.supplant(msg.payload);
+                } else {
+                    msg[n.attribute] = n.html.supplant(msg.payload);
+                }
             } else {
                 msg.topic = n.name || "untitled";
                 msg[n.attribute] = n.html;

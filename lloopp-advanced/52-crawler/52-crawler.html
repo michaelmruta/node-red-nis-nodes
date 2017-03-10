@@ -1,0 +1,354 @@
+<!--
+  Copyright 2017 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2017)
+-->
+
+
+<script type="text/x-red" data-template-name="crawler">
+
+    <h3>Crawler Configuration</h3>
+
+    <div class="form-row">
+        <label for="node-input-filterByDomain"><i class="fa fa-gear"></i> Filter by Domain</label>
+        <input type="checkbox" id="node-input-filterByDomain">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxDepth" ><i class="fa fa-gear"></i> Depth</label>
+        <input type="text" id="node-input-maxDepth" placeholder="3" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-gear"></i> Interval</label>
+        <input type="text" id="node-input-interval" placeholder="15 | 1000" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxConcurrency"><i class="fa fa-gear"></i> Max Concurrency</label>
+        <input type="text" id="node-input-maxConcurrency" placeholder="5 | 3" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-userAgent"><i class="fa fa-user"></i> User Agent</label>
+        <input type="text" id="node-input-userAgent" placeholder="Chrome" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-supportedMimeTypes"><i class="fa fa-user"></i> Mime Types</label>
+        <input type="text" id="node-input-supportedMimeTypes" placeholder="*" style="width:40%">
+    </div>
+
+    <h3>Queries</h3>
+
+    <div class="form-row">
+        <label for="node-input-queryForItemField"><i class="fa fa-file"></i> Item Elem</label>
+        <input type="text" id="node-input-queryForItemField" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForDateField"><i class="fa fa-file"></i> Item>Date Elem</label>
+        <input type="text" id="node-input-queryForDateField" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForContentField"><i class="fa fa-file"></i> Item>Content Elem</label>
+        <input type="text" id="node-input-queryForContentField" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForRemovedFields"><i class="fa fa-file"></i> Item>Removed Elem</label>
+        <input type="text" id="node-input-queryForRemovedFields" placeholder="">
+    </div>
+
+    <h3>Formatting</h3>
+
+    <div class="form-row">
+        <label for="node-input-removeWhiteSpaces"><i class="fa fa-gear"></i> Trim</label>
+        <input type="checkbox" id="node-input-removeWhiteSpaces">
+    </div>
+    <div class="form-row">
+        <label for="node-input-hash"><i class="fa fa-gear"></i> MD5 Hash</label>
+        <input type="checkbox" id="node-input-hash">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sDateFormat"><i class="fa fa-gear"></i> Source Date Format</label>
+        <input type="text" id="node-input-sDateFormat" placeholder="LLLL">
+    </div>  
+    <div class="form-row">
+        <label for="node-input-tDateFormat"><i class="fa fa-gear"></i> Target Date Format</label>
+        <input type="text" id="node-input-tDateFormat" placeholder="YYYY-MM-DD hh:mm:ss A">
+    </div>
+
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <style>
+        .form-row label {
+            width: 150px;
+        }
+        .form-row input { 
+            width: 60%;
+        }
+    </style>
+</script>
+
+
+<script type="text/x-red" data-help-name="crawler">
+    <p>Crawls a URL given in <strong>msg.topic</strong></p>
+
+    <h2></a>Configuration</h2>
+    <p>simplecrawler is highly configurable and there&quot;s a long list of settings you can
+    change to adapt it to your specific needs.</p>
+    <ul>
+    <li>
+    <p><code>crawler.host</code> -
+    The domain to scan. By default, simplecrawler will restrict all requests to
+    this domain.</p>
+    </li>
+    <li>
+    <p><code>crawler.interval=250</code> -
+    The interval with which the crawler will spool up new requests (one per
+    tick).</p>
+    </li>
+    <li>
+    <p><code>crawler.maxConcurrency=5</code> -
+    The maximum number of requests the crawler will run simultaneously. Defaults
+    to 5 - the default number of http agents node will run.</p>
+    </li>
+    <li>
+    <p><code>crawler.timeout=300000</code> -
+    The maximum time in milliseconds the crawler will wait for headers before
+    aborting the request.</p>
+    </li>
+    <li>
+    <p><code>crawler.listenerTTL=10000</code> -
+    The maximum time in milliseconds the crawler will wait for async listeners.</p>
+    </li>
+    <li>
+    <p><code>crawler.userAgent="Node/simplecrawler &lt;version&gt; (https://github.com/cgiffard/node-simplecrawler)"</code> -
+    The user agent the crawler will report.</p>
+    </li>
+    <li>
+    <p><code>crawler.decompressResponses=true</code> -
+    Response bodies that are compressed will be automatically decompressed
+    before they&quot;re emitted in the <code>fetchcomplete</code> event. Even if this is falsy,
+    compressed responses will be decompressed before they&quot;re passed to the
+    <code>discoverResources</code> method.</p>
+    </li>
+    <li>
+    <p><code>crawler.decodeResponses=false</code> -
+    Response bodies will be intelligently character converted to standard
+    JavaScript strings using the
+    <a href="https://www.npmjs.com/package/iconv-lite">iconv-lite</a> module. The character
+    encoding is interpreted from the Content-Type header firstly, and secondly
+    from any <code>&lt;meta charset="xxx" /&gt;</code> tags.</p>
+    </li>
+    <li>
+    <p><code>crawler.respectRobotsTxt=true</code> -
+    Controls whether the crawler should respect rules in robots.txt (if such a
+    file is present). The
+    <a href="https://www.npmjs.com/package/robots-parser">robots-parser</a> module is used
+    to do the actual parsing. This property will also make the default
+    <code>crawler.discoverResources</code> method respect
+    <code>&lt;meta name="robots" value="nofollow"&gt;</code> tags - meaning that no resources
+    will be extracted from pages that include such a tag.</p>
+    </li>
+    <li>
+    <p><code>crawler.queue</code> -
+    The queue in use by the crawler (Must implement the <code>FetchQueue</code> interface)</p>
+    </li>
+    <li>
+    <p><code>crawler.allowInitialDomainChange=false</code> -
+    If the response for the initial URL is a redirect to another domain (e.g.
+    from github.net to github.com), update <code>crawler.host</code> to continue the
+    crawling on that domain.</p>
+    </li>
+    <li>
+    <p><code>crawler.filterByDomain=true</code> -
+    Specifies whether the crawler will restrict queued requests to a given
+    domain/domains.</p>
+    </li>
+    <li>
+    <p><code>crawler.scanSubdomains=false</code> -
+    Enables scanning subdomains (other than www) as well as the specified
+    domain.</p>
+    </li>
+    <li>
+    <p><code>crawler.ignoreWWWDomain=true</code> -
+    Treats the <code>www</code> domain the same as the originally specified domain.</p>
+    </li>
+    <li>
+    <p><code>crawler.stripWWWDomain=false</code> -
+    Or go even further and strip WWW subdomain from requests altogether!</p>
+    </li>
+    <li>
+    <p><code>crawler.stripQuerystring=false</code> -
+    Specify to strip querystring parameters from URL&quot;s.</p>
+    </li>
+    <li>
+    <p><code>crawler.discoverResources</code> -
+    simplecrawler&quot;s default resource discovery function -
+    which, given a buffer containing a resource, returns an array of URLs.
+    For more details about link discovery, see <a href="#link-discovery">Link Discovery</a></p>
+    </li>
+    <li>
+    <p><code>crawler.discoverRegex</code> -
+    Array of regular expressions and functions that simplecrawler uses to
+    discover resources. Functions in this array are expected to return an array.
+    <em>Only applicable if the default <code>discoverResources</code> function is used.</em></p>
+    </li>
+    <li>
+    <p><code>crawler.parseHTMLComments=true</code> -
+    Whether to scan for URL&quot;s inside HTML comments. <em>Only applicable if the
+    default <code>discoverResources</code> function is used.</em></p>
+    </li>
+    <li>
+    <p><code>crawler.parseScriptTags=true</code> -
+    Whether to scan for URL&quot;s inside script tags. <em>Only applicable if the
+    default <code>discoverResources</code> function is used.</em></p>
+    </li>
+    <li>
+    <p><code>crawler.cache</code> -
+    Specify a cache architecture to use when crawling. Must implement
+    <code>SimpleCache</code> interface. You can save the site to disk using the built in
+    file system cache like this:</p>
+    <div class="highlight js"><pre class="editor editor-colors"><div class="line"><span class="source js"><span class="variable other object js"><span>crawler</span></span><span class="meta delimiter period js"><span>.</span></span><span class="variable other js"><span>cache</span></span><span>&nbsp;</span><span class="keyword operator assignment js"><span>=</span></span><span>&nbsp;</span><span class="meta class instance constructor"><span class="keyword operator js"><span>new</span></span><span>&nbsp;</span><span class="entity name type instance js"><span>Crawler.cache</span></span></span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>pathToCacheDirectory</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre></div>
+    </li>
+    <li>
+    <p><code>crawler.useProxy=false</code> -
+    The crawler should use an HTTP proxy to make its requests.</p>
+    </li>
+    <li>
+    <p><code>crawler.proxyHostname="127.0.0.1"</code> -
+    The hostname of the proxy to use for requests.</p>
+    </li>
+    <li>
+    <p><code>crawler.proxyPort=8123</code> -
+    The port of the proxy to use for requests.</p>
+    </li>
+    <li>
+    <p><code>crawler.proxyUser=null</code> -
+    The username for HTTP/Basic proxy authentication (leave unset for
+    unauthenticated proxies.)</p>
+    </li>
+    <li>
+    <p><code>crawler.proxyPass=null</code> -
+    The password for HTTP/Basic proxy authentication (leave unset for
+    unauthenticated proxies.)</p>
+    </li>
+    <li>
+    <p><code>crawler.domainWhitelist</code> -
+    An array of domains the crawler is permitted to crawl from. If other
+    settings are more permissive, they will override this setting.</p>
+    </li>
+    <li>
+    <p><code>crawler.allowedProtocols</code> -
+    An array of RegExp objects used to determine whether a URL protocol is
+    supported. This is to deal with nonstandard protocol handlers that regular
+    HTTP is sometimes given, like <code>feed:</code>. It does not provide support for
+    non-http protocols (and why would it!?)</p>
+    </li>
+    <li>
+    <p><code>crawler.maxResourceSize=16777216</code> -
+    The maximum resource size that will be downloaded, in bytes. Defaults to
+    16MB.</p>
+    </li>
+    <li>
+    <p><code>crawler.supportedMimeTypes</code> -
+    An array of RegExp objects used to determine what MIME types simplecrawler
+    should look for resources in. If <code>crawler.downloadUnsupported</code> is false,
+    this also restricts what resources are downloaded.</p>
+    </li>
+    <li>
+    <p><code>crawler.downloadUnsupported=true</code> -
+    simplecrawler will download files it can&quot;t parse (determined by
+    <code>crawler.supportedMimeTypes</code>). Defaults to true, but if you&quot;d rather save
+    the RAM and GC lag, switch it off. When false, it closes sockets for
+    unsupported resources.</p>
+    </li>
+    <li>
+    <p><code>crawler.needsAuth=false</code> -
+    Flag to specify if the domain you are hitting requires basic authentication.</p>
+    </li>
+    <li>
+    <p><code>crawler.authUser=""</code> -
+    Username provided for <code>needsAuth</code> flag.</p>
+    </li>
+    <li>
+    <p><code>crawler.authPass=""</code> -
+    Password provided for <code>needsAuth</code> flag.</p>
+    </li>
+    <li>
+    <p><code>crawler.customHeaders</code> -
+    An object specifying a number of custom headers simplecrawler will add to
+    every request. These override the default headers simplecrawler sets, so be
+    careful with them. If you want to tamper with headers on a per-request
+    basis, see the <code>fetchqueue</code> event.</p>
+    </li>
+    <li>
+    <p><code>crawler.acceptCookies=true</code> -
+    Flag to indicate if the crawler should hold on to cookies.</p>
+    </li>
+    <li>
+    <p><code>crawler.urlEncoding="unicode"</code> -
+    Set this to <code>iso8859</code> to trigger
+    <a href="https://medialize.github.io/URI.js/">URI.js</a>&quot; re-encoding of iso8859 URL&quot;s
+    to unicode.</p>
+    </li>
+    <li>
+    <p><code>crawler.maxDepth=0</code> -
+    Defines a maximum distance from the original request at which resources will
+    be downloaded.</p>
+    </li>
+    <li>
+    <p><code>crawler.ignoreInvalidSSL=false</code> -
+    Treat self-signed SSL certificates as valid. SSL certificates will not be
+    validated against known CAs. Only applies to https requests. You may also
+    have to set the environment variable NODE_TLS_REJECT_UNAUTHORIZED to &quot;0&quot;.
+    For example: <code>process.env.NODE_TLS_REJECT_UNAUTHORIZED = &quot;0&quot;;</code></p>
+    </li>
+    </ul>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('crawler',{
+        category: 'lloopp', 
+        color:"#FF99CC",
+        defaults: {             
+            name: {value:""},   
+            filterByDomain: {value:true},   
+            maxDepth: {value:3, required:true},   
+            interval: {value:15, required:true},   
+            maxConcurrency: {value:5, required:true},   
+            userAgent: {value:"Chrome", required:true},   
+            supportedMimeTypes: {value:"text/html", required:true},   
+            queryForItemField: {value:".postrow", required:true},   
+            queryForDateField: {value:".postdate .date"},   
+            queryForContentField: {value:"blockquote.postcontent"},   
+            queryForRemovedFields: {value:"blockquote.postcontent .bbcode_container"},   
+            removeWhiteSpaces: {value:true},
+            hash: {value:true},
+            sDateFormat: {value:""},
+            tDateFormat: {value:""}
+        },
+        inputs:1,               
+        outputs:1,              
+        icon: "white-globe.png",     
+        label: function() {     
+            return this.name||this.topic||"crawler";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

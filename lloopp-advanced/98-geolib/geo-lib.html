@@ -1,0 +1,77 @@
+<script type="text/x-red" data-template-name="geo-lib">   
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+
+    <br/>
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+      <label for="node-input-geoType">ChartType</label>
+          <select type="text" id="node-input-geoType">
+              <option value = ""> -- select geo type -- </option>
+              <option value="radius">Check In Radius</option>              
+          </select>
+    </div>
+    <div id="div-radius" class="form-row extra" style="display:none">
+        <label for="node-input-radius"><i class="fa fa-tag"></i> Radius</label>
+        <input type="text" id="node-input-radius" placeholder="1000">
+    </div>    
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="geo-lib">
+   <!-- data-help-name identifies the node type this help is for             -->
+   <!-- This content appears in the Info sidebar when a node is selected     -->
+   <!-- The first <p> is used as the pop-up tool tip when hovering over a    -->
+   <!-- node in the palette.                                                 -->
+   <p>Simple geo-lib input node. Just sends a single message when it starts up.
+   This is not very useful.</p>
+   <p>Outputs an object called <code>msg</code> containing <code>msg.topic</code> and
+   <code>msg.payload</code>. msg.payload is a String.</p>
+</script>
+
+<!-- Finally, the node type is registered along with all of its properties   -->
+<!-- The example below shows a small subset of the properties that can be set-->
+<script type="text/javascript">
+
+    RED.nodes.registerType('geo-lib',{
+        category: 'input',      // the palette category
+        color: '#66CCFF',
+        defaults: {             // defines the editable properties of the node
+            name: {value:""},   //  along with default values.
+            topic: {value:"", required:true},
+            geoType: {value:""},
+            radius: {value:"1000"},
+            latitude1 : {value:0,validate:RED.validators.number() },
+            latitude2 : {value:0,validate:RED.validators.number() },
+            longitude1 : {value:0,validate:RED.validators.number() },
+            longitude2 : {value:0,validate:RED.validators.number() },
+
+        },
+        inputs:1,               // set the number of inputs - only 0 or 1
+        outputs:1,              // set the number of outputs - 0 to n
+        // set the icon (held in icons dir below where you save the node)
+        icon: "white-globe.png",     // saved in  icons/myicon.png
+        label: function() {     // sets the default label contents
+            return this.name||this.topic||"geo-lib";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {          
+          $('#node-input-geoType').change(function(){          
+            $('.extra').hide();            
+            $('#div-' + $(this).val()).show();
+        });
+          return "";
+        }
+    });
+
+</script>

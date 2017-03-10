@@ -46,7 +46,7 @@
     <p>Super Simple WYSIWYG Editor</p>
     <p>This node could be used to create rich texts, HTMLs and email messages. Sends topic as <code>msg.topic</code> and the contents in the editor as html in <code>msg[<n.attribute>]</code>.</p>
     <p><strong>supplant</strong> replaces strings enclosed with double curly braces {} to equivalent property values of <strong>msg.payload</strong>. This is applied to both the <strong>topic</strong> and <strong>body</strong> <code>eg. hi {name}!</code></p>
-    <p style="color:red"><strong>Note:</strong> toolbar actions & dialogs is not compatible and currently unstable.</p>
+    <p style="color:blue"><strong>msg.html</strong> could be used as template for supplant values of an Object <strong>msg.payload</strong> when supplant is enabled.</p>
 </script>
 
 <script type="text/javascript">
@@ -102,17 +102,17 @@
             });
 
             $(function() {
-                summernote = $('#node-input-rich-editor').summernote({
-                    "height":250,
+                var s = $('#node-input-rich-editor').summernote({
+                    "height":380,
                     "width": '100%'
                 });    
+                console.log(that.html);
+                $('#node-input-rich-editor').summernote('code', that.html);
+                $(".modal").hide();
             });
-            
-            summernote.code(this.html);
         },
         oneditsave: function(){
-            console.log(summernote.code())
-            this.html = summernote.code();
+            this.html = $('#node-input-rich-editor').summernote('code');
         }
     });
 </script>

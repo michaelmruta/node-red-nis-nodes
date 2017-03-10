@@ -32,9 +32,37 @@
 <script type="text/x-red" data-help-name="configuration">
 
 <h3>Configuration</h3>
-<p>Takes <strong>msg.code</strong> or <strong>msg.topic</strong> as identifier in the configuration set</p>
+<p>Takes <strong>msg.code</strong> as identifier in the configuration set, if no identifier is given, this node will iterate through all available codes.</p>
 <p>Returns configuration data <strong>msg.config</strong> with function <strong>msg.autoConfig</strong></p>
 <p>Configurations on node is saved flows/configurations/:id</p>
+<p>Adds the current server time in <strong>msg.timestamp</strong></p>
+<p>Attaches the configuration index to <strong>msg.code</strong></p>
+
+<p>Uses node name or node id to identify which node to apply current temporary properties</p>
+
+<button class="button" onclick="$('#config-example').toggleClass('hidden');">Example Configurations</button>
+<div id="config-example" class="hidden">
+<pre>
+{
+  "provisioning": {
+    "provision": {
+      "code": "C-001"
+    }
+  },
+  "C-001": {
+    "fd488299.c7661": {
+      "code": "C-001"
+    },
+    "parser": {
+      "temp": "id,name,value"
+    }
+  }
+}
+</pre>
+</div>
+
+<br/>
+<br/>
 
 <button class="button" onclick="$('#config-api').toggleClass('hidden');">Show Configuration API</button>
 <div id="config-api" class="hidden">
@@ -49,6 +77,8 @@ PUT /configuration/:id&index=0 {}
 
 // to delete config data (index)
 DELETE /configuration/:id&index=0
+
+<i>the index is the code that is also used as the campaign identifiers</i>
 </pre>
 </div>
 
@@ -58,9 +88,7 @@ DELETE /configuration/:id&index=0
 <button class="button" onclick="$('#config-implementation').toggleClass('hidden');">Show Code Implementation</button>
 <div id="config-implementation" class="hidden">
 <pre>this.on("input", function(msg) {            
-  if(msg.autoConfig) {
-      n = msg.autoConfig(n,node.id);
-  }
+  if(msg.config) n = RED.nodes.autoConfig(n,node.id);
   node.send(msg);
 });</pre>
 </div>

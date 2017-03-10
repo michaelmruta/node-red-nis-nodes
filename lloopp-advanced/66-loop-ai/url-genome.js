@@ -36,7 +36,7 @@ module.exports = function(RED) {
             }, msg);
         	msg_.numThreads = n.numThreads;
         	msg_.genomeId = prop || "default";
-        	msg_.urlList = msg.payload || '[]';
+        	msg_.urlList = msg.payload || [];
 
 			node.status({fill:"blue",shape:"dot",text:"computing" });
             
@@ -45,12 +45,13 @@ module.exports = function(RED) {
 						.send(JSON.stringify(msg_))
 						.end(function(response) {
                             
-                        node.status({});
+                            node.status({});
+                            console.log(response.body)
                             
                             if(response.status == 200){
     							node.send(response.body);
                             } else {
-                                node.error(response.error);
+                                node.error(response.error, msg);
                             }
 							
 						});

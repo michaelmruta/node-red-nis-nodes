@@ -16,14 +16,19 @@
  * Author: Michael Angelo Ruta & Alexander Pimentel (2015)
  *
  **/
- 
+
+// console.log("RED");
+// console.log(RED);
+var helpers = require('toolbox-helpers');
+
  module.exports = function(RED) {
     "use strict";
+
     function DateFilterNode(n) {
 
         RED.nodes.createNode(this,n);
         var node = this;
-
+        
         var filterDate = n.datetimepicker.split("-");
         var filterDateBefore = new Date(filterDate[0]);
         var filterDateAfter = new Date(filterDate[1]);
@@ -31,8 +36,10 @@
         var attributeParts = (n.attribute || "payload").split(".");
 
         this.on('input', function (msg) {
-            if(msg.autoConfig) {
-              n = msg.autoConfig(n,node.id);
+            if(msg.config) {
+
+              n = helpers.autoConfig(msg.config,n,node.id);
+
                 filterDate = n.datetimepicker.split("-");
                 filterDateBefore = new Date(filterDate[0]);
                 filterDateAfter = new Date(filterDate[1]);

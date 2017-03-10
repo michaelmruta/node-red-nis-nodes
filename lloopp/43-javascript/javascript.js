@@ -37,7 +37,7 @@ module.exports = function(RED) {
         var id = "_"+node.id.toString().replace('.','');
         if(!global.globalFunc) global.globalFunc = {};
         var code = 'globalFunc["'+id+'"]=function(msg){'+n.func+';return msg}';
-        var script = new vm.Script(code,{displayErrors:true});  
+        var script = new vm.Script(code,{displayErrors:true});
         script.runInThisContext();
         
         this.on('input', function (msg) {

@@ -13,20 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Michael Angelo Ruta (2015)
+ * Author: Michael Angelo Ruta (2016)
  *
  **/
 
 var fs = require('fs')
 var _ = require('underscore')
+var helpers = require('toolbox-helpers')
 
 module.exports = function(RED) {
     "use strict";
 
     var CONFIG_PATH = 'flows/configurations/';
 
+    function setValue(path, val, obj) {
+      var fields = path.split('.');
+      var result = obj;
+      for (var i = 0, n = fields.length; i < n && result !== undefined; i++) {
+        var field = fields[i];
+        if (i === n - 1) {
+          result[field] = val;
+        } else {
+          if (typeof result[field] === 'undefined' || !_.isObject(result[field])) {
+            result[field] = {};
+          }
+          result = result[field];
+        }
+      }
+    }
+
     function getConfigFile(id) {
-        console.log(CONFIG_PATH+id+".json");
         return CONFIG_PATH+id+".json";
     }
 
@@ -40,17 +56,20 @@ module.exports = function(RED) {
             } catch(e) { node.error(e) }
             res.end( configuration.toString() );
         } else {
-            res.json({})
+            res.json({"Error":"User has no session. Please login to continue..."})
         }
     });
 
     // POST /configuration/:id {} };
     RED.httpAdmin.post("/configuration/:id", function(req,res) {
+        var node = RED.nodes.getNode(req.params.id);
+
         res.setHeader('Content-Type', 'application/json');
         if(req.user) {
             var configuration ={}
             try {
                 configuration = req.body.data
+                node.configuration = configuration
                 fs.writeFileSync(getConfigFile(req.params.id),configuration)
             } catch(e) { node.error(e) }
             res.json(JSON.parse(configuration));
@@ -61,6 +80,8 @@ module.exports = function(RED) {
 
     // PUT /configuration/:id&index=0 {} };
     RED.httpAdmin.put("/configuration/:id", function(req,res) {
+        var node = RED.nodes.getNode(req.params.id);
+
         res.setHeader('Content-Type', 'application/json');
         if(req.user) {
             var configuration ={}
@@ -69,16 +90,19 @@ module.exports = function(RED) {
                     var configurations = JSON.parse(fs.readFileSync(getConfigFile(req.params.id)));
                     configurations[req.query.index] = JSON.parse(req.body)
                     configuration = fs.writeFileSync(getConfigFile(req.params.id),configurations)
+                    node.configuration = configuration
                 }
             } catch(e) { node.error(e) }
             res.json(configuration);
         } else {
-            res.json({})
+            res.json({"Error":"User has no session. Please login to continue..."})
         }
     });
 
     // DELETE /configuration/:id index=0;
     RED.httpAdmin.delete("/configuration/:id", function(req,res) {
+        var node = RED.nodes.getNode(req.params.id);
+
         res.setHeader('Content-Type', 'application/json');
         if(req.user) {
            var configuration ={}
@@ -87,11 +111,12 @@ module.exports = function(RED) {
                     var configurations = JSON.parse(fs.readFileSync(getConfigFile(req.params.id)));
                     delete configurations[req.params.index]
                     configuration = fs.writeFileSync(getConfigFile(req.params.id),configurations)
+                    node.configuration = configuration
                 }
             } catch(e) { node.error(e) }
             res.json(configuration);
         } else {
-            res.json({})
+            res.json({"Error":"User has no session. Please login to continue..."})
         }
     });
 
@@ -99,42 +124,55 @@ module.exports = function(RED) {
     	
         RED.nodes.createNode(this,n);
         var node = this;
+        if(!node.configuration) node.configuration = {}
         var file = n.name || node.id
 
-        fs.stat(CONFIG_PATH+file, function(err, stat) {
+        fs.stat(getConfigFile(file), function(err, stat) {
             if(err == null) {
-                console.log('Successfully loaded: '+CONFIG_PATH+file)
+                console.log('Successfully loaded: '+getConfigFile(file))
             } else if(err.code == 'ENOENT') {
-                fs.writeFile(CONFIG_PATH+file, '{}');
+                fs.writeFile(getConfigFile(file), '{}');
             } else {
                 console.log('Error: ', err.code);
             }
         });
 
+        node.configuration = JSON.parse(fs.readFileSync(getConfigFile(file)));
+
         this.on('input', function (msg) {
             msg.timestamp = new Date();
 
-            msg.autoConfig = function(n_,id_) {
-                var config_ = this.config
-                if(config_ && config_[id_]) {
-                    _.extend(n_, config_[n_.name || id_]);
-                }
-                return n_;
-            }
+            var configurations = node.configuration;
 
-            try {
-                var configurations = JSON.parse(fs.readFileSync(CONFIG_PATH+file));
-                if(configurations.constructor == Object) {
-                    msg.config = configurations[msg.code || msg.topic];
-                    node.send(msg);
+
+            if(msg.topic == 'extend') {
+                if(msg.payload.key && msg.payload.value) {
+                    var delta = setValue(msg.payload.key, msg.payload.value, configurations)
+                    fs.writeFileSync(getConfigFile(node.id),JSON.stringify(configurations));
+                    node.configuration = configurations
+                    node.log('Configuration '+(node.name || node.id)+' has changed.')
                 }
-            } catch(e) { node.error(e,msg) }
+            } else {
+                try {
+                    if(configurations.constructor == Object) {
+                        if(msg.code) {
+                            msg.config = configurations[msg.code];
+                            node.send(msg);
+                        } else {
+                            _.each(configurations, function(config,index) {
+                                msg.config = config;
+                                msg.code = index;
+                                node.send(msg);
+                            })
+                        }
+                    }
+                } catch(e) { node.error(e,msg) }
+            }
         });
 
         this.on('error', function (error) {
         	node.error(error)
         });
     }
-    RED.nodes.registerType("configuration",ConfigurationNode);
-
+    RED.nodes.registerType("configuration",ConfigurationNode);    
 }

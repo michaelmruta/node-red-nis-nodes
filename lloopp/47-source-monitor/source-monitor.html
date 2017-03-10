@@ -49,7 +49,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="source-monitor">
-    <p>Keeps track of files in a directory or tables in a database. Sends each source as message when <strong>msg.topic</strong> is <code>next</code></p>
+    <p>Keeps track of files in a directory or tables in a database. Sends each source as message when <strong>msg.topic</strong> is <code>next</code> or <code>done</code>. It also changes <code>msg.topic</code> to <strong>start</strong></p>
     <p><code>reset</code> on <strong>msg.topic</strong> recreates json directory tree data which is used to persist the processed files</code>
     <p><strong>sList</strong> - is the json file which will keep track of the file processing progress.</p>
     <p><strong>directory</strong> - is the table or path that will be monitored. Default path is <code>./data/&lt;n.directory&gt;</code></p>
@@ -92,7 +92,7 @@
         color:"#FFF94F",
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "watch.png",
         label: function() {
             return this.name||this.source||"source-monitor";
         },

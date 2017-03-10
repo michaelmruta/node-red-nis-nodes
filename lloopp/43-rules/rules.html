@@ -27,7 +27,10 @@
 <link rel="stylesheet" href="vendor/query-builder/css/bootstrap-theme.css" type="text/css">
 
 <script type="text/javascript" src="vendor/query-builder/js/query-builder.js" />
+<script type="text/javascript" src="vendor/sql-parser.js" />
 <link rel="stylesheet" href="vendor/query-builder/css/query-builder.default.min.css" type="text/css">
+
+<script type="text/javascript" src="/js/underscore-min.js" />
 
 <style type="text/css">
     #builder .btn-group>.btn {
@@ -60,19 +63,52 @@
 <script type="text/x-red" data-template-name="rules">
 
     <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-wrench"></i>Mode</label>
+        <select id="node-input-mode">
+          <option value="sift">Rules : Array/Object filtering</option>
+          <option value="sql">Generate ANSI SQL</option>
+          <option value="n1ql">Generate Couchbase - N1QL</option>
+          <option value="mongo">Generate MongoDB Query</option>
+        </select>
+    </div>
+    <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-row">
+
+    <div class="form-row sift-type-option">
         <label for="node-input-attribute"><i class="fa fa-tag"></i> Atrribute</label>
         <input type="text" id="node-input-attribute" placeholder="payload">
     </div>
+    <div class="form-row sql-type-option hidden">
+        <label for="node-input-table"><i class="fa fa-table"></i> Table/Bucket</label>
+        <input type="text" id="node-input-table" placeholder="bucket / database.table / table">
+    </div>
+
     <div class="form-row">
         <label for="node-input-filter"><i class="fa fa-database"></i> Model</label>
         <select type="text" id="node-input-filter" style="width:320px"></select>
     </div>
     <div class="form-row node-builder-row">
     </div>
+
+    <div class="form-row text-center show-advanced hidden">
+        <button type="button" class="btn btn-default btn-xs" onclick="javascript:$('.form-advanced-options').toggleClass('hidden');">
+        <small><i class="fa fa-cog"></i> Show/Hide Advanced Options (SQL)</small></button>
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-columns"><i class="fa fa-wrench"></i> Columns</label>
+        <input type="text" id="node-input-columns" placeholder="*">
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-offset"><i class="fa fa-wrench"></i> Offset</label>
+        <input type="text" id="node-input-offset" placeholder="0">
+    </div>
+    <div class="form-row form-advanced-options hidden">
+        <label for="node-input-limit"><i class="fa fa-wrench"></i> Limit</label>
+        <input type="text" id="node-input-limit" placeholder="1048576">
+    </div>   
+
     <div id="rules-note" class="form-tips hidden">
       <p><b>Note: </b>You must deploy this node first to load the <strong>Event Types</strong>.</p>
     </div>
@@ -81,14 +117,22 @@
 </script>
 
 <script type="text/x-red" data-help-name="rules">
+  <h3>Mode: Rules - an Array/Object filtering</h3>
   <p>jQuery QueryBuilder + sift</p>
   <p>Takes an Array or Object using <strong>msg[&ltattribute&gt]</strong> and applies a <a href="http://docs.mongodb.org/manual/reference/operator/query/">mongodb</a> query on it.</p>
   <p>This is just an advanced object filter and does not contain any algorithm. If you want to use a <strong>rete based rules engine</strong>, refer to <strong>durable</strong> in <strong>javascript</strong> node instead.</p>
+  <p>If an array of objects is received, this node will apply the filter in the array objects and emit those objects that passed the conditions individually.</p>
+  <hr />
+  <h3>Mode: SQL/N1SQL/MongoDB QueryBuilder</h3>
+  <p>In this mode, node is a SQL query builder. Sends (once) <strong>msg.topic</strong> containing a SQL query. Sends (once) <strong>msg.n1ql</strong> containin Couchbase compatible query.</p>
+  <p><strong>Note</strong> This is does not use a streaming API, RAM allocation must be taken care of manually. The generated query returns a maximum of 1048576 records by default. See advanced options.</p>
 </script>
 
 <script type="text/javascript">
 
     var query;
+    var mongodb;
+    var mode;
 
     RED.nodes.registerType('rules', {
         color: "#CC6699",
@@ -96,14 +140,22 @@
         defaults: {
             name: {value:""},
             attribute: {value:"payload",required:true},
-            filter: {value:""},
-            query: {value:null}
+            filter: {value:"default"},
+            query: {value:null},
+            table: {value:"default",required:true},
+            columns: {value:"*",required:true},
+            filter: {value:"default"},
+            query: {value:null},
+            offset: {value:0},
+            limit: {value:1048576},
+            mongo: {value:null},
+            mode: {value:"sift"}
         },
         inputs: 1,
         outputs: 2,
         icon: "inject.png",
         label: function() {
-            return this.name || "rules";
+             return this.name || ( (this.mode == 'sift') ? "rules" : this.mode );
         },
         labelStyle: function() {
             return this.name ? "node_label_italic" : "";
@@ -111,7 +163,7 @@
         oneditprepare: function() {
 
           // queryBuilder
-          var filter = this.filter || 0;
+          var filter = this.filter || 'default';
           var filters;
 
           $.ajax({ url:'filters', async: false, dataType: "json",
@@ -167,49 +219,90 @@
              });
 
             $.each(filters, function(key, value) {
-              $("#node-input-filter").append('<option value=' + key + '>' + value.name + '</option>');
+              $("#node-input-filter").append('<option value="' + value.name + '">' + value.name + '</option>');
             });
             $("#node-input-filter").val(filter);
 
           $(".node-builder-row").append('<div id="builder"></div>')
+
+          var n = _.find(filters, function(f){ return filter == f.name; });
           $('#builder').queryBuilder({
               sortable: true,
               plugins: ['bt-tooltip-errors'],
-              filters: filters[filter].data
-            });
+              filters: n ? n.data : []
+          });
 
           query = this.query;
           if(query) {
-            $('#builder').queryBuilder('setRulesFromMongo', query);
+            if(typeof query == "string") {
+              $('#builder').queryBuilder('setRulesFromSQL', query, false);
+            } else {
+              $('#builder').queryBuilder('setRulesFromMongo', query);
+            }
           }
 
           $("#node-input-filter").change(function() {
             $(".node-builder-row").append('<div id="builder"></div>')
             if( $("#builder").queryBuilder ) {
               $('#builder').queryBuilder('destroy');
+              var f_ = $("#node-input-filter").val() || 'default'
+              var n_ = _.find(filters, function(f){ return f.name == f_; });
               $('#builder').queryBuilder({
                             sortable: true,
                             plugins: ['bt-tooltip-errors'],
-                            filters: filters[$("#node-input-filter").val()].data
+                            filters: n_ ? n_.data : []
                           });
             }
             if(filter == $(this).val()) {
               if(query) {
-                $('#builder').queryBuilder('setRulesFromMongo', query);
+                if(typeof query == "string") {
+                  $('#builder').queryBuilder('setRulesFromSQL', query, false);
+                } else {
+                  $('#builder').queryBuilder('setRulesFromMongo', query);
+                }
               }
             }
           });
+
+          $("#node-input-mode").change(function() {
+            var select = $(this);
+            if(select.val() == "sift") {
+                $(".sift-type-option").show()
+                $(".sql-type-option").hide()
+                $(".show-advanced, .form-advanced-options").addClass('hidden')
+            } else {
+                $(".sift-type-option").hide()
+                $(".sql-type-option").show()
+                $(".show-advanced, .form-advanced-options").removeClass('hidden')
+            };
+          })
+
         },
         oneditsave: function() {
-            var result = $('#builder').queryBuilder('getMongo');
+            var result = {}
+
+            if(this.mode == 'sift') {
+                result = $('#builder').queryBuilder('getMongo');
+            } else {
+                result = $('#builder').queryBuilder('getSQL', false);
+                result.mongo = $('#builder').queryBuilder('getMongo');
+            }
+
             if (!$.isEmptyObject(result)) {
-              this.query = $('#builder').queryBuilder('getMongo');
+
+              if(this.mode == 'sift') {
+                this.query = result;
+              } else {
+                this.query = result.sql;
+                this.mongo = result.mongo;
+              }
+
               $('#builder').queryBuilder('destroy');
+              query = this.query;
+              this.filter = $("#node-input-filter").val()
             } else {
               this.query = null;
             }
-            query = this.query;
-            this.filter = $("#node-input-filter").val()
         },
         oneditcancel: function() {
           $('#builder').queryBuilder('destroy');
@@ -217,6 +310,29 @@
             beforeClose: function(event, ui) {
              return true}
            });
+        },
+        button: {
+            onclick: function() {
+                var id = this.id;
+                $.ajax({
+                  url: "query/"+id,
+                  type:"POST",
+                  success: function(resp) {
+                      RED.notify("<strong>Info</strong>: query sent `"+resp.sql+"`","info");
+                  },
+                  error: function(jqXHR,textStatus,errorThrown) {
+                      if (jqXHR.status == 404) {
+                          RED.notify("<strong>Error</strong>: query node not deployed","error");
+                      } else if (jqXHR.status == 500) {
+                          RED.notify("<strong>Error</strong>: query failed, see log for details.","error");
+                      } else if (jqXHR.status == 0) {
+                          RED.notify("<strong>Error</strong>: no response from server","error");
+                      } else {
+                          RED.notify("<strong>Error</strong>: "+errorThrown);
+                      }
+                  }
+                });
+            }
         }
     });
 </script>

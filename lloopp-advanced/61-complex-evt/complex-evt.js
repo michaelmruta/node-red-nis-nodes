@@ -58,11 +58,17 @@ module.exports = function(RED) {
 
         this.on('input', function (msg) {  
             
-            msg.metrics.name = n.collection
-            msg.metrics[n.collection+"_list"] = collect(msg.metrics.amount, n.timeframe*n.multiplier, n.attribute, Number(n.windows));
-            delete msg.metrics.amount
+            msg[n.collection+"_windows"] = collect(msg[n.collection], 
+                                                        n.timeframe*n.multiplier, 
+                                                        n.attribute, 
+                                                        Number(n.windows));
+            if(n.events) {
+                if(msg[n.collection] && msg[n.collection].constructor == Array) {
+                    msg[n.collection] = msg[n.collection].slice(-n.events);
+                }
+            }
 
-            node.send(msg.metrics);
+            node.send(msg);
         });
 
         this.on("close", function() {

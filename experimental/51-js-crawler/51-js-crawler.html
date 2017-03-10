@@ -1,0 +1,157 @@
+<!--
+  Copyright 2017 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo Ruta (2017)
+-->
+
+
+<script type="text/x-red" data-template-name="js-crawler">
+
+    <h3>Crawler Configuration</h3>
+
+    <div class="form-row">
+        <label for="node-input-ignoreRelative"><i class="fa fa-gear"></i> Ignore Relative</label>
+        <input type="checkbox" id="node-input-ignoreRelative" placeholder="ignoreRelative">
+    </div>
+    <div class="form-row">
+        <label for="node-input-depth" ><i class="fa fa-gear"></i> Depth</label>
+        <input type="text" id="node-input-depth" placeholder="3" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxRequestsPerSecond"><i class="fa fa-gear"></i> Max RPS</label>
+        <input type="text" id="node-input-maxRequestsPerSecond" placeholder="15" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxConcurrentRequests"><i class="fa fa-gear"></i> Max Concurrency</label>
+        <input type="text" id="node-input-maxConcurrentRequests" placeholder="5" style="width:40%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-userAgent"><i class="fa fa-user"></i> User Agent</label>
+        <input type="text" id="node-input-userAgent" placeholder="Chrome" style="width:40%">
+    </div>
+
+    <h3>Queries</h3>
+
+    <div class="form-row">
+        <label for="node-input-queryForPostField"><i class="fa fa-file"></i> Post Field</label>
+        <input type="text" id="node-input-queryForPostField" placeholder=".postrow">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForDateField"><i class="fa fa-file"></i> Date Field</label>
+        <input type="text" id="node-input-queryForDateField" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForContentField"><i class="fa fa-file"></i> Content Field</label>
+        <input type="text" id="node-input-queryForContentField" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-queryForRemovedFields"><i class="fa fa-file"></i> Removed Fields</label>
+        <input type="text" id="node-input-queryForRemovedFields" placeholder="">
+    </div>
+
+    <h3>Formatting</h3>
+
+    <div class="form-row">
+        <label for="node-input-removeWhiteSpaces"><i class="fa fa-gear"></i> Trim</label>
+        <input type="checkbox" id="node-input-removeWhiteSpaces">
+    </div>
+    <div class="form-row">
+        <label for="node-input-hash"><i class="fa fa-gear"></i> MD5 Hash</label>
+        <input type="checkbox" id="node-input-hash">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dateFormat"><i class="fa fa-gear"></i> Date Format</label>
+        <input type="text" id="node-input-dateFormat" placeholder="YYYY-MM-DD hh:mm:ss A">
+    </div>
+
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <style>
+        .form-row label {
+            width: 130px;
+        }
+    </style>
+</script>
+
+
+<script type="text/x-red" data-help-name="js-crawler">
+<p>Crawls a URL given in <strong>msg.topic</strong></p>
+
+<p>To stop the crawling, send a blank <strong>msg.topic</strong> to the node.</p>
+
+<p><strong>depth</strong> - the depth to which the links from the original page will be crawled. Example: if site1.com contains a link to site2.com which contains a link to site3.com, depth is 2 and we crawl from site1.com then we will crawl site2.com but will not crawl site3.com as it will be too deep. The default value is 2.</p>
+
+<p><strong>ignoreRelative</strong> - ignore the relative URLs, the relative URLs on the same page will be ignored when crawling, so /wiki/Quick-Start will not be crawled and https://github.com/explore will be crawled. This option can be useful when we are mainly interested in sites to which the current sites refers and not just different sections of the original site. The default value is false.</p>
+
+<p><strong>userAgent</strong> - User agent to send with js-crawler requests. The default value is Chrome</p>
+
+<p><strong>maxRequestsPerSecond</strong> - the maximum number of HTTP requests per second that can be made by the js-crawler, default value is 100</p>
+
+<p><strong>maxConcurrentRequests</strong> - the maximum number of concurrent requests that should not be exceeded by the js-crawler, the default value is 10</p>
+
+<hr />
+
+<p>If <strong>Date Format</strong> is specified, node will try to change the format the date field using <strong>momentjs</strong>.</p>
+
+<p>You can override the properties if you have any of these in your message: <br />
+        <strong>msg.ignoreRelative</strong>,
+        <strong>msg.depth</strong>,
+        <strong>msg.maxRequestsPerSecond</strong>,
+        <strong>msg.maxConcurrentRequests</strong>,
+        <strong>msg.userAgent</strong>,
+        <strong>msg.queryForPostField</strong>,
+        <strong>msg.queryForDateField</strong>,
+        <strong>msg.queryForContentField</strong>,
+        <strong>msg.queryForRemovedFields</strong> 
+</p>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('js-crawler',{
+        category: 'input', 
+        color:"#FF99CC",
+        defaults: {             
+            name: {value:""},   
+            ignoreRelative: {value:false},   
+            depth: {value:3, required:true},   
+            maxRequestsPerSecond: {value:15, required:true},   
+            maxConcurrentRequests: {value:5, required:true},   
+            userAgent: {value:"Chrome", required:true},   
+            queryForPostField: {value:".postrow", required:true},   
+            queryForDateField: {value:".postdate .date"},   
+            queryForContentField: {value:"blockquote.postcontent"},   
+            queryForRemovedFields: {value:"blockquote.postcontent .bbcode_container"},   
+            removeWhiteSpaces: {value:true},
+            hash: {value:true},
+            dateFormat: {value:""}
+        },
+        inputs:1,               
+        outputs:1,              
+        icon: "white-globe.png",     
+        paletteLabel: "js-crawler",     
+        label: function() {     
+            return this.name||this.topic||"js-crawler";
+        },
+        labelStyle: function() { 
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

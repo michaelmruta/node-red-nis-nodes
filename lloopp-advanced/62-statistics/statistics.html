@@ -22,111 +22,244 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-amount"><i class="fa fa-tag"></i> Amount</label>
-        <input type="text" id="node-input-amount" placeholder="Amount">
+        <label for="node-input-attribute"><i class="fa fa-tag"></i> Attribute</label>
+        msg.<input type="text" id="node-input-attribute" placeholder="attribute" style='width:200px'>
     </div>
-    <div class="form-row">    
-      <table>
-        <tr>
-          <td>
-            <span>
-              <input id="node-input-min" name="node-input-min" type="checkbox" value="min"/>
-              <label for="node-input-min">Min</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-max" name="node-input-max" type="checkbox" value="max"/>
-              <label for="node-input-max">Max</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-sum" name="node-input-sum" type="checkbox" value="sum"/>
-              <label for="node-input-sum">Sum</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-count" name="node-input-count" type="checkbox" value="count"/>
-              <label for="node-input-count">Count</label>
-            </span> 
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span>
-              <input id="node-input-average" name="node-input-average" type="checkbox" value="average"/>
-              <label for="node-input-average">Average</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-mean" name="node-input-mean" type="checkbox" value="mean"/>
-              <label for="node-input-mean">Mean</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-median" name="node-input-median" type="checkbox" value="median"/>
-              <label for="node-input-median">Median</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-mode" name="node-input-mode" type="checkbox" value="mode"/>
-              <label for="node-input-mode">Mode</label>
-            </span> 
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span>
-              <input id="node-input-geometric_mean" name="node-input-geometric_mean" type="checkbox" value="geometric_mean"/>
-              <label for="node-input-geometric_mean">Geometric Mean</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-harmonic_mean" name="node-input-harmonic_mean" type="checkbox" value="harmonic_mean"/>
-              <label for="node-input-harmonic_mean">Harmonic Mean</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-variance" name="node-input-variance" type="checkbox" value="variance"/>
-              <label for="node-input-variance">Variance</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-sample-variance" name="node-input-sample-variance" type="checkbox" value="sample-variance"/>
-              <label for="node-input-sample-variance">Sample Variance</label>
-            </span> 
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span>
-              <input id="node-input-standard_deviation" name="node-input-standard_deviation" type="checkbox" value="standard_deviation"/>
-              <label for="node-input-standard_deviation">Standard Deviation</label>
-            </span> 
-          </td>
-          <td>
-            <span>
-              <input id="node-input-median_deviation" name="node-input-median_deviation" type="checkbox" value="median_deviation"/>
-              <label for="node-input-median_deviation">Median Deviation</label>
-            </span> 
-          </td>
-        </tr>
-      </table>
+    <div class="form-row input-check-list">    
+        <span>
+          <input id="node-input-min" name="node-input-min" type="checkbox" style="display:inline-block" value="min"/>
+          <label for="node-input-min">Min</label><br />
+        </span> 
+        <span>
+          <input id="node-input-max" name="node-input-max" type="checkbox" style="display:inline-block" value="max"/>
+          <label for="node-input-max">Max</label><br />
+        </span> 
+        <span>
+          <input id="node-input-sum" name="node-input-sum" type="checkbox" style="display:inline-block" value="sum"/>
+          <label for="node-input-sum">Sum</label><br />
+        </span> 
+        <span>
+          <input id="node-input-count" name="node-input-count" type="checkbox" style="display:inline-block" value="count"/>
+          <label for="node-input-count">Count</label><br />
+        </span> 
+        <span>
+          <input id="node-input-average" name="node-input-average" type="checkbox" style="display:inline-block" value="average"/>
+          <label for="node-input-average">Average</label><br />
+        </span> 
+        <span>
+          <input id="node-input-mean" name="node-input-mean" type="checkbox" style="display:inline-block" value="mean"/>
+          <label for="node-input-mean">Mean</label><br />
+        </span> 
+        <span>
+          <input id="node-input-median" name="node-input-median" type="checkbox" style="display:inline-block" value="median"/>
+          <label for="node-input-median">Median</label><br />
+        </span> 
+        <span>
+          <input id="node-input-mode" name="node-input-mode" type="checkbox" style="display:inline-block" value="mode"/>
+          <label for="node-input-mode">Mode</label><br />
+        </span> 
+        <span>
+          <input id="node-input-geometric_mean" name="node-input-geometric_mean" type="checkbox" style="display:inline-block" value="geometric_mean"/>
+          <label for="node-input-geometric_mean">Geometric Mean</label><br />
+        </span> 
+        <span>
+          <input id="node-input-harmonic_mean" name="node-input-harmonic_mean" type="checkbox" style="display:inline-block" value="harmonic_mean"/>
+          <label for="node-input-harmonic_mean">Harmonic Mean</label><br />
+        </span> 
+        <span>
+          <input id="node-input-variance" name="node-input-variance" type="checkbox" style="display:inline-block" value="variance"/>
+          <label for="node-input-variance">Variance</label><br />
+        </span> 
+        <span>
+          <input id="node-input-sample_variance" name="node-input-sample_variance" type="checkbox" style="display:inline-block" value="sample_variance"/>
+          <label for="node-input-sample_variance">Sample Variance</label><br />
+        </span> 
+        <span>
+          <input id="node-input-standard_deviation" name="node-input-standard_deviation" type="checkbox" style="display:inline-block" value="standard_deviation"/>
+          <label for="node-input-standard_deviation">Standard Deviation</label><br />
+        </span> 
     </div>
+    <style>
+      .input-check-list input {
+        width: 30px;
+      }
+      .input-check-list label {
+        width: 80%;
+      }
+    </style>
 </script>
 
 <script type="text/x-red" data-help-name="statistics">
-   
-   <p>A node used to implement a descriptive, regression, and inference statistics.</p>
-   
+     <div class="fixed md-show fix-3 overflow-auto max-height-100">
+        <div class="px1 py1">
+          <h3>Simple Statistics</h3>
+          <p class="px2 center">
+            v1.0.0
+            <iframe src="https://ghbtns.com/github-btn.html?user=simple-statistics&amp;repo=simple-statistics&amp;type=star&amp;count=true&amp;size=small" frameborder="0" scrolling="0" width="100px" height="20px" style="vertical-align:middle"></iframe>
+          </p>
+          <p class="px2">
+            Statistical methods in readable JavaScript for browsers, servers, and people.
+          </p>
+          <div id="toc" class="px2">
+              <a href="http://simplestatistics.org/docs/#bayesianclassifier" class="block bold" target="_blank">
+                BayesianClassifier
+              </a>
+                <a href="http://simplestatistics.org/docs/#bayesianclassifier/score" class="regular block" target="_blank">
+                  #score
+                </a>
+                <a href="http://simplestatistics.org/docs/#bayesianclassifier/train" class="regular block" target="_blank">
+                  #train
+                </a>
+              <a href="http://simplestatistics.org/docs/#perceptronmodel" class="block bold" target="_blank">
+                PerceptronModel
+              </a>
+                <a href="http://simplestatistics.org/docs/#perceptronmodel/predict" class="regular block" target="_blank">
+                  #predict
+                </a>
+                <a href="http://simplestatistics.org/docs/#perceptronmodel/train" class="regular block" target="_blank">
+                  #train
+                </a>
+              <a href="http://simplestatistics.org/docs/#bernoullidistribution" class="block bold" target="_blank">
+                bernoulliDistribution
+              </a>
+              <a href="http://simplestatistics.org/docs/#binomialdistribution" class="block bold" target="_blank">
+                binomialDistribution
+              </a>
+              <a href="http://simplestatistics.org/docs/#chisquareddistributiontable" class="block bold" target="_blank">
+                chiSquaredDistributionTable
+              </a>
+              <a href="http://simplestatistics.org/docs/#chisquaredgoodnessoffit" class="block bold" target="_blank">
+                chiSquaredGoodnessOfFit
+              </a>
+              <a href="http://simplestatistics.org/docs/#chunk" class="block bold" target="_blank">
+                chunk
+              </a>
+              <a href="http://simplestatistics.org/docs/#ckmeans" class="block bold" target="_blank">
+                ckmeans
+              </a>
+              <a href="http://simplestatistics.org/docs/#cumulativestdnormalprobability" class="block bold" target="_blank">
+                cumulativeStdNormalProbability
+              </a>
+              <a href="http://simplestatistics.org/docs/#epsilon" class="block bold" target="_blank">
+                epsilon
+              </a>
+              <a href="http://simplestatistics.org/docs/#errorfunction" class="block bold" target="_blank">
+                errorFunction
+              </a>
+              <a href="http://simplestatistics.org/docs/#factorial" class="block bold" target="_blank">
+                factorial
+              </a>
+              <a href="http://simplestatistics.org/docs/#geometricmean" class="block bold" target="_blank">
+                geometricMean
+              </a>
+              <a href="http://simplestatistics.org/docs/#harmonicmean" class="block bold" target="_blank">
+                harmonicMean
+              </a>
+              <a href="http://simplestatistics.org/docs/#interquartilerange" class="block bold" target="_blank">
+                interquartileRange
+              </a>
+              <a href="http://simplestatistics.org/docs/#inverseerrorfunction" class="block bold" target="_blank">
+                inverseErrorFunction
+              </a>
+              <a href="http://simplestatistics.org/docs/#linearregression" class="block bold" target="_blank">
+                linearRegression
+              </a>
+              <a href="http://simplestatistics.org/docs/#linearregressionline" class="block bold" target="_blank">
+                linearRegressionLine
+              </a>
+              <a href="http://simplestatistics.org/docs/#mad" class="block bold" target="_blank">
+                mad
+              </a>
+              <a href="http://simplestatistics.org/docs/#max" class="block bold" target="_blank">
+                max
+              </a>
+              <a href="http://simplestatistics.org/docs/#mean" class="block bold" target="_blank">
+                mean
+              </a>
+              <a href="http://simplestatistics.org/docs/#median" class="block bold" target="_blank">
+                median
+              </a>
+              <a href="http://simplestatistics.org/docs/#min" class="block bold" target="_blank">
+                min
+              </a>
+              <a href="http://simplestatistics.org/docs/#mixin" class="block bold" target="_blank">
+                mixin
+              </a>
+              <a href="http://simplestatistics.org/docs/#mode" class="block bold" target="_blank">
+                mode
+              </a>
+              <a href="http://simplestatistics.org/docs/#poissondistribution" class="block bold" target="_blank">
+                poissonDistribution
+              </a>
+              <a href="http://simplestatistics.org/docs/#probit" class="block bold" target="_blank">
+                probit
+              </a>
+              <a href="http://simplestatistics.org/docs/#quantile" class="block bold" target="_blank">
+                quantile
+              </a>
+              <a href="http://simplestatistics.org/docs/#quantilesorted" class="block bold" target="_blank">
+                quantileSorted
+              </a>
+              <a href="http://simplestatistics.org/docs/#rsquared" class="block bold" target="_blank">
+                rSquared
+              </a>
+              <a href="http://simplestatistics.org/docs/#rootmeansquare" class="block bold" target="_blank">
+                rootMeanSquare
+              </a>
+              <a href="http://simplestatistics.org/docs/#sample" class="block bold" target="_blank">
+                sample
+              </a>
+              <a href="http://simplestatistics.org/docs/#samplecorrelation" class="block bold" target="_blank">
+                sampleCorrelation
+              </a>
+              <a href="http://simplestatistics.org/docs/#samplecovariance" class="block bold" target="_blank">
+                sampleCovariance
+              </a>
+              <a href="http://simplestatistics.org/docs/#sampleskewness" class="block bold" target="_blank">
+                sampleSkewness
+              </a>
+              <a href="http://simplestatistics.org/docs/#samplestandarddeviation" class="block bold" target="_blank">
+                sampleStandardDeviation
+              </a>
+              <a href="http://simplestatistics.org/docs/#sorteduniquecount" class="block bold" target="_blank">
+                sortedUniqueCount
+              </a>
+              <a href="http://simplestatistics.org/docs/#standarddeviation" class="block bold" target="_blank">
+                standardDeviation
+              </a>
+              <a href="http://simplestatistics.org/docs/#standardnormaltable" class="block bold" target="_blank">
+                standardNormalTable
+              </a>
+              <a href="http://simplestatistics.org/docs/#sum" class="block bold" target="_blank">
+                sum
+              </a>
+              <a href="http://simplestatistics.org/docs/#sumnthpowerdeviations" class="block bold" target="_blank">
+                sumNthPowerDeviations
+              </a>
+              <a href="http://simplestatistics.org/docs/#ttest" class="block bold" target="_blank">
+                tTest
+              </a>
+              <a href="http://simplestatistics.org/docs/#ttesttwosample" class="block bold" target="_blank">
+                tTestTwoSample
+              </a>
+              <a href="http://simplestatistics.org/docs/#variance" class="block bold" target="_blank">
+                variance
+              </a>
+              <a href="http://simplestatistics.org/docs/#zscore" class="block bold" target="_blank">
+                zScore
+              </a>
+          </div>
+        </div>
+      </div>
+
+      <style>
+        a.block {
+          display: block;
+        }
+        .bold {
+          font-weight: bold;
+        }
+      </style>
 </script>
 
 <script type="text/javascript">
@@ -135,6 +268,7 @@
         color: '#3FADB5',
         defaults: {             
             name: {value:""},
+            attribute: {value:"payload"},
             min: {value:false},
             max: {value:false},
             sum: {value:false},
@@ -147,8 +281,7 @@
             harmonic_mean: {value:false},
             variance: {value:false},
             sample_variance: {value:false},
-            standard_deviation: {value:false},
-            median_deviation: {value:false},
+            standard_deviation: {value:false}
         },
         inputs:1,               
         outputs:1,

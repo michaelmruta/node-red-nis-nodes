@@ -18,6 +18,7 @@
  **/
 
 var log4js = require('log4js'); 
+const exec = require('child_process').exec;
 
 log4js.configure({
   	appenders: [],
@@ -31,19 +32,34 @@ module.exports = function(RED) {
     function log4jsNode(n) {
         RED.nodes.createNode(this,n);
         var node = this;
+
+        node.category = n.category;
         
-		var date = new Date().toISOString().slice(0, 10).replace('T', ' ');
+		// var date = new Date().toISOString().slice(0, 10).replace('T', ' ');
 
 		var logger;
 		if(log4js.hasLogger(n.category)) {
 			logger = log4js.getLogger(n.category);
 		} else {
-			log4js.addAppender(log4js.appenders.file('data/logs/'+n.category+"_"+date+".log"), n.category);
+			log4js.addAppender(log4js.appenders.file('data/logs/'+n.category+".log"), n.category);
 			logger = log4js.getLogger(n.category);
 		}
 		
         var safeJsonStringify = require('safe-json-stringify');
-	
+
+        RED.httpAdmin.get('/log4js/:category', function (req, res) {
+        	var file = 'data/logs/'+req.params.category+".log"
+			exec('tail -n 100 '+file, function (error, stdout, stderr){
+			  if (error) {
+			    res.json(error);
+			    return;
+			  }
+		      res.writeHead(200, {'Content-Type': 'text/plain'});
+			  res.end(""+stdout);
+			});
+
+		});
+
         this.on('input', function (msg) {
 			
 			var message = msg.payload || msg;

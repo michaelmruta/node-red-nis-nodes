@@ -10,16 +10,12 @@
         <label for="node-input-payload"><i class="fa fa-tag"></i> Dataset</label>
         <input type="text" id="node-input-payload" placeholder="Dataset">
     </div>
-
     <div class="form-row">
         <label for="node-input-model"><i class="fa fa-tag"></i> Model</label>
-        <input type="text" id="node-input-model" placeholder="model">
+        <input type="text" id="node-input-model" placeholder="Model">
     </div>
 
-
 </script>
-
-
 
 <script type="text/x-red" data-help-name="compute">
    <p>Simple compute-genome input node. Just sends a single message when it starts up.
@@ -36,8 +32,8 @@
         color : '#E49191',   // the palette category
         defaults: {             // defines the editable properties of the node
             name: {value:""},   //  along with default values.            
-            payload: {value:"", required:true},
-            model: {value:"", required:true}
+            payload: {value:""},
+            model: {value:""}
         },
         inputs:1,               // set the number of inputs - only 0 or 1
         outputs:1,              // set the number of outputs - 0 to n

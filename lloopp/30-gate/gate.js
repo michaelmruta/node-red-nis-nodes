@@ -64,8 +64,15 @@ module.exports = function(RED) {
         // !isNaN(req.body.id) && !isNaN(req.body.switch)
         if (node != null) {
             try {
-                var switch_id = req.body.switch
-                node.switch[switch_id] = !node.switch[switch_id]
+ 
+                if(req.body.switches) {
+                    node.switch = req.body.switches;
+                    res.json(node.switch);
+                } else {
+                    var switch_id = req.body.switch
+                    node.switch[switch_id] = !node.switch[switch_id]
+                    res.json(node.switch);
+                }
 
                 var status_message = "";
                 for(var ctr=0; ctr<node.switch.length;ctr++) {
@@ -77,7 +84,7 @@ module.exports = function(RED) {
                 var status = {fill:"green",shape:"dot",text:status_message};
                 if(status_message == "") { status = {fill:"red",shape:"dot",text:"closed"} }
                 node.status(status);
-                res.json(node.switch);
+            
             } catch(err) {
                 res.sendStatus(500);
                 node.error(err);

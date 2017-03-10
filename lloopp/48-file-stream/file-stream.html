@@ -95,6 +95,10 @@
     <p>Reads the specified file and sends the content as <b>msg.payload</b>, and the filename as <b>msg.filename</b>.</p>
     <p>The filename can be configured in the node, if left blank it should be set in an incoming message on <b>msg.filename</b>.</p>
 
+    <p>1 - line by line output</p>
+    <p>2 - eof output</p>
+    <p>3 - % completed</p>
+
     <h3>Throttling</h3>
     <p>Inspired by node-throttle module, but acts as a through stream and splits input chunks if required to maintain target speed as close as possible.</p>
     <p>
@@ -126,7 +130,7 @@
         },
         color:"#FDF0C2",
         inputs:1,
-        outputs:2,
+        outputs:3,
         icon: "file.png",
         label: function() {
             return this.name|| (this.filename ? this.filename.replace(/^.*[\\\/]/, '') : "file-stream");

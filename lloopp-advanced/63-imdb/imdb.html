@@ -1,0 +1,70 @@
+<!--
+  Copyright 2015 Natural Intelligence Solutions.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author: Michael Angelo (2016)
+-->
+
+<script type="text/x-red" data-template-name="imdb">
+    <div class="form-row">
+        <label for="node-input-database"><i class="fa fa-database"></i> Database</label>
+        <input type="text" id="node-input-database" placeholder="database" required>
+    </div>
+    <div class="form-row">
+        <label for="node-input-collection"><i class="fa fa-file"></i> Collection</label>
+        <input type="text" id="node-input-collection" placeholder="collection" required>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-kv" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-kv" style="width: 70%;">swap payload using kvstore values</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="imdb">
+ <h3>In-memory Javascript Datastore with Persistence</h3>
+ <p>NOTE: This node is strongly recommended only for use with non-critical, non-distributed & mostly static small datasets with ultra-low latency queries. e.g. caches, enumerated list, realtime chart data, temporary states, tail logs.. etc</p>
+ <p>Requires <strong>msg._key</strong> as primary index and takes <strong>msg.payload</strong> as the data payload.</p>
+ <p>Set value of <strong>msg.topic</strong> to <code>set</code> to store data (insert/update).</p>
+ <p>Set value of <strong>msg.topic</strong> to <code>get</code> to retrieve data.</p>
+ <p>If <strong>msg._key</strong> is not defined, it will use <strong>msg.payload</strong> as key instead. A key must be a string or number.</p>
+ <p>Creates a persisted store in <code>./data/imdb.json</code>. Data is persisted on workflow deployment or if an event with <strong>msg.topic</strong> contains a string <code>save</code>. Data is lost on any UNIX termination signal.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('imdb',{
+        category: 'binding',
+        color: '#CCFF66',
+        defaults: {             
+            name: {value:""},
+            database: {value:"default"},
+            collection: {value:null},
+            attribute: {value:"payload"},
+            kv: {value:false}
+        },
+        inputs:1,               
+        outputs:1,
+        icon: "database.png",     
+        label: function() {     
+            return this.name||"imdb";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

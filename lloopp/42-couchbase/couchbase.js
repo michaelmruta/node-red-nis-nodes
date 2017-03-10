@@ -48,7 +48,13 @@ module.exports = function(RED) {
 
         RED.nodes.createNode(this,n);
 
-        var cluster = new couchbase.Cluster(n.cluster);
+        var cluster = {}
+        if(!n.cluster) {
+            cluster = new couchbase.Cluster(RED.config.couchbase.cluster);
+        } else {
+            cluster = new couchbase.Cluster(n.cluster);
+        }
+
         var bucket = cluster.openBucket(n.bucket);
         if(n.opTimeout)
             bucket.opTimeout = n.opTimeout;
@@ -218,8 +224,14 @@ module.exports = function(RED) {
 
         RED.nodes.createNode(this,n);
         this.operation = n.operation;
-   
-        var cluster = new couchbase.Cluster(n.cluster);
+        
+        var cluster = {}
+        if(!n.cluster) {
+            cluster = new couchbase.Cluster(RED.config.couchbase.cluster);
+        } else {
+            cluster = new couchbase.Cluster(n.cluster);
+        }
+
         var bucket = cluster.openBucket(n.bucket);
         if(n.opTimeout)
             bucket.opTimeout = n.opTimeout;

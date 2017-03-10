@@ -17,6 +17,8 @@
  *
  **/
 
+var helpers = require('toolbox-helpers');
+
 module.exports = function(RED) {
     "use strict";
 
@@ -43,7 +45,7 @@ module.exports = function(RED) {
         var once;
 
         this.on('input', function (msg) {
-            if(msg.auConfig) n = msg.autoConfig(n,node.id);
+            if(msg.config) n = helpers.autoConfig(msg.config,n,node.id);
 
 			msg.code = n.code;
 			if(n.status == "Approved") {

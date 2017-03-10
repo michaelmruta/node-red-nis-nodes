@@ -29,9 +29,11 @@ module.exports = function(RED) {
 
         this.on('input', function (msg) {
 
-            var p = new Parallel(node);
-            p.map( node.send, {maxWorkers:n.maxWorkers});
+            // var p = new Parallel(node);
+            // p.map( node.send, {maxWorkers:n.maxWorkers});
             
+            var p = new Parallel(msg);
+            p.spawn(node.send);
         });
 
         this.on('error', function (error) {

@@ -10,4 +10,7 @@
 99-sample.js.demo
 
 # Node-RED core files
-core/*
+core
+contrib
+
+./lloopp/43-dynamodb

@@ -27,7 +27,7 @@ module.exports = function(RED) {
         var body = ""
         // console.log(atob(":jaiminis"));
         this.on('input', function (msg) {
-            console.log(msg)
+            // console.log(msg);
             
             var Request = unirest.get('http://lloopp.loop.ai:8300/getConceptList?model=' + msg.payload);
             var x = Request.auth({
@@ -35,31 +35,12 @@ module.exports = function(RED) {
                 pass: 'jaiminis',
                 sendImmediately: true})
             .end(function (response) {                
-              console.log(msg);
+              // console.log(msg);
               msg.payload = response.body;
               node.send(msg);
               
 
             });
-            
-            // console.log(x.headers);
-            // console.log(msg);
-            // var x = unirest.get('http://lloopp.loop.ai:8300/getConceptList') 
-            //     .header('Accept', 'application/json')
-            //     .field({ 'model': msg.model })
-            //     .end(function(response) {
-                    
-            //         node.status({});
-                    
-            //         if(response.status == 200){
-            //             node.send(response.body);
-            //         } else {
-            //             node.error(response.error);
-            //         }
-                    
-            //     });
-            //     console.log(x);
-        
             
         });
     }

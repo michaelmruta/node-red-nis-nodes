@@ -17,6 +17,7 @@
  *
  **/
 
+var helpers = require('toolbox-helpers');
 
 module.exports = function(RED) {
     "use strict";
@@ -32,7 +33,7 @@ module.exports = function(RED) {
         if (typeof path === "string") {
             var path = path.split('.');
         }
-    if(path.length > 1){
+        if(path.length > 1){
             var p=path.shift();
             if(typeof obj[p] == "undefined" || typeof obj[p]!== 'object'){
                  obj[p] = {};
@@ -48,12 +49,16 @@ module.exports = function(RED) {
 
         var c=0, tps=0;
 
+        var node = this;
+
         var clock = setInterval(function() {
             if(n.passive) {
                 if(n.attribute) {
                     node.status({fill:"green",shape:"dot",text:c.toLocaleString()});
                 } else {
                     node.status({fill:"green",shape:"dot",text:c.toLocaleString()+" events @"+tps+" tps" });
+                    var payload = c.toLocaleString()+" events @"+tps+" tps" 
+                    node.send([null,null,payload])
                 }
                 tps = 0 
             }
@@ -65,8 +70,6 @@ module.exports = function(RED) {
             c = 0;
             tps = 0;
         }
-
-        var node = this;
 
         // gets the parent of the counter attribute
         // var parent = attribute.split(".").splice(0,attribute.split(".").length - 1).join(".");
@@ -81,8 +84,8 @@ module.exports = function(RED) {
             node.status({}); 
 
         this.on('input', function (msg) {
-            if(msg.autoConfig) {
-              n = msg.autoConfig(n,node.id);
+            if(msg.config) {
+              n = helpers.autoConfig(msg.config,n,node.id);
               type = n.category;
             }
 

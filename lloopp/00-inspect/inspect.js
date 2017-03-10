@@ -23,8 +23,9 @@
 
         RED.nodes.createNode(this,n);
 
-        // this.message = n.message || {};
-        this.message = {}
+        // this.message = {}
+        var node = this;
+        node.message = n.message || {};
         
         var safeJsonStringify = require('safe-json-stringify');
 
@@ -34,9 +35,13 @@
 		    res.setHeader('Content-Type', 'application/json');
             if(node) {
                 if(typeof node.message == "string") {
-                    node.message = JSON.parse(node.message)
+                    try {
+                        node.message = JSON.parse(node.message)
+                    } catch (e) {
+                        node.error(e);
+                    }
                 }
-                res.json( node.message || {});
+                res.end( safeJsonStringify(node.message) || "{}");
             } else {
                 res.json({"error":"failed to get node.message"});
             }
@@ -47,15 +52,19 @@
             var node = RED.nodes.getNode(req.params.id);
             res.setHeader('Content-Type', 'application/json');
             node.send(node.message);
-            res.send(node.message || {});
+            res.end( safeJsonStringify(node.message) || "{}");
         });
 
         this.on('input', function (msg) {
             if(typeof msg == "string") {
-                this.message = {typeof:"string",msg:msg}
+                node.message = {typeof:"string",msg:msg}
             } else {
-                this.message = msg;    
+                node.message = msg;    
             }
+        });
+
+        this.on('close', function () {
+            node.message = {};
         });
 
     }

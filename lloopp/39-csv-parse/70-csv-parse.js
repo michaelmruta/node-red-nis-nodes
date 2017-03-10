@@ -15,7 +15,15 @@
  *
  * Author: Michael Angelo Ruta (2015)
  *
+ * This module is still on safe BETA testing
+ * This is tested and passed using a small set of multiline-record CSV 
+ * for use with large data-streams.
+ * This module is only compatible and tested using csv-parse ^0.1.4
+ * as of October 7, 2016
+ *
  **/
+
+var helpers = require('toolbox-helpers');
  
 module.exports = function(RED) {
     "use strict";
@@ -36,7 +44,7 @@ module.exports = function(RED) {
             node.hdrout = n.hdrout || false;
             node.goodtmpl = true;
             node.legacy = n.legacy || false;
-            node.detect = n.detect || true;
+            node.detect = n.detect || false;
         }
 
         var node = this;
@@ -62,8 +70,8 @@ module.exports = function(RED) {
 
         this.on("input", function(msg) {
             
-            if(msg.autoConfig) {
-                n = msg.autoConfig(n,node.id);
+            if(msg.config) {
+                n = helpers.autoConfig(msg.config,n,node.id);
                 updateNodeConfiguration(node);
             }
 
@@ -100,7 +108,7 @@ module.exports = function(RED) {
                 }
                 else if (typeof msg.payload == "string") { // convert CSV string to object
 
-                    if(n.legacy) {
+                    if(node.legacy) {
                         try {
                             var f = true; // flag to indicate if inside or outside a pair of quotes true = outside.
                             var j = 0; // pointer into array of template items
@@ -189,28 +197,57 @@ module.exports = function(RED) {
 
                         var raw = msg.payload;
                         try {
-                            var lineBufferSize = this.lineBufferSize
 
-                            var parserConfig = {delimiter:node.sep, columns:node.template, quote:node.quo, auto_parse:node.detect}
+                            var parserConfig = {delimiter:node.sep, columns:node.template, quote:node.quo, auto_parse:n.detect}
 
-                            var n = parse(msg.payload, parserConfig, function(err, parsed){
-                                if(err) {
-                                    node.error(err,msg);
-                                } else {
-
-                                    msg.payload = parsed[0];
+                            parse(msg.payload, parserConfig, function(err, parsed){
+                                if(!err || (err == "Error: Number of columns on line 1 does not match header" && n.fixed == true)) {
+                                    msg.payload = parsed ? (parsed[0] || {}) : {};
 
                                     // fixed columns ensure that the number of columns matched the header
                                     // definition. this eliminates the errors in parsing multiline records
+
                                     if(n.fixed == true) {
+
                                         var bufferSize = Object.keys(msg.payload).length;
 
-                                        if(node.lineBufferSize < node.template.length) {
-                                            node.lineBufferSize += bufferSize - 1
-                                            node.lineBuffer += " " + raw;
+                                        // this would replace newline character with space
+                                        if(bufferSize < node.template.length) {
+                                            node.lineBufferSize += bufferSize
+                                            if(node.lineBuffer == "") {
+                                                node.lineBuffer += raw;
+                                            } else {
+                                                node.lineBuffer += " " + raw;
+                                            }
                                         }
-                                        if(node.lineBufferSize+1 == node.template.length || bufferSize == node.template.length) {                                        
+
+                                        // for multi-line records
+                                        if(node.lineBufferSize+1 > node.template.length) {
+                                                parse(node.lineBuffer, parserConfig, function(err, parsed_){
+                                                    if(node.lineBufferSize >= node.template.length || bufferSize != node.template.length) {
+                                                        node.lineBuffer = ""
+                                                        node.lineBufferSize = 0;
+                                                        msg.payload = parsed_[0];
+                                                    } else {
+                                                        msg.payload = parsed[0]
+                                                    }
+                                                    if(n.nempty) {
+                                                        for (var p in msg.payload) {
+                                                            if(msg.payload[p]==""||msg.payload[p]==null){
+                                                                delete msg.payload[p];
+                                                            }
+                                                        };
+                                                    }
+                                                    node.send(msg);
+                                                })
+                                                node.lineBufferSize = 0;
+                                                node.lineBuffer = "";
+                                        }
+
+                                        // for single-line records
+                                        if(node.lineBufferSize+1 == node.template.length || bufferSize == node.template.length) {
                                             parse(node.lineBuffer, parserConfig, function(err, parsed_){
+                                            
                                                 if(node.lineBufferSize >= node.template.length || bufferSize != node.template.length) {
                                                     node.lineBuffer = ""
                                                     node.lineBufferSize = 0;
@@ -218,17 +255,38 @@ module.exports = function(RED) {
                                                 } else {
                                                     msg.payload = parsed[0]
                                                 }
+
+                                                if(n.nempty) {
+                                                    for (var p in msg.payload) {
+                                                        if(msg.payload[p]==""||msg.payload[p]==null){
+                                                            delete msg.payload[p];
+                                                        }
+                                                    };
+                                                }
+
                                                 node.send(msg);
                                             })
                                         }
                                     } else {
+
+                                       if(n.nempty) {
+                                            for (var p in msg.payload) {
+                                                if(msg.payload[p]==""||msg.payload[p]==null){
+                                                    delete msg.payload[p];
+                                                }
+                                            };
+                                        }
                                         node.send(msg);
                                     }
 
+                                } else {å
+                                    node.error(err,msg);
                                 }
                             });
                         }
-                        catch(e) { node.error(e,msg); }
+                        catch(e) { 
+                            node.error(e,msg); 
+                        }
 
                     }
                 }
@@ -237,5 +295,11 @@ module.exports = function(RED) {
             else { node.send(msg); } // If no payload - just pass it on.
         });
     }
-    RED.nodes.registerType("csv-parse",CSVParseNode);
+    // var json = JSON.parse(require('fs').readFileSync('./package.json', 'utf8'))
+    // if(json.dependencies['csv-parse'] != "^0.1.4") {
+    // if(parse.Parser().regexp_float.toString() != "/^[+-]?(([1-9][0-9]*)|(0))([.,][0-9]+)?$/") {
+    //     throw "csv-parse module requires version ^0.1.4";
+    // } else {
+        RED.nodes.registerType("csv-parse",CSVParseNode);
+    // }
 }
