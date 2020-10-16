@@ -1,5 +1,5 @@
 {
-  "name": "node-red-nis-nodes",
+  "name": "x-node-red-nis-nodes",
   "version": "1.0.0",
   "description": "Toolbox v.2 - lloopp core and binding components.",
   "main": "index.js",
